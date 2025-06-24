@@ -9,4 +9,5 @@ class ItemQuest extends Model
 {
     /** @use HasFactory<\Database\Factories\ItemQuestFactory> */
     use HasFactory;
+    protected $table = 'item_quest';
 }

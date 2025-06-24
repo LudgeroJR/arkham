@@ -10,7 +10,7 @@ class SkillFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => ucfirst($this->faker->word),
+            'name' => ucfirst($this->faker->unique()->word),
             'category' => $this->faker->randomElement(['Physical', 'Special', 'Status']),
             'type_id' => Type::inRandomOrder()->first()->id ?? 1,
             'power' => $this->faker->numberBetween(10, 120),

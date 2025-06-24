@@ -2,22 +2,17 @@
 
 namespace Database\Factories;
 
+use App\Models\Pokedex;
+use App\Models\Skill;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-/**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Eggmove>
- */
 class EggmoveFactory extends Factory
 {
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
     public function definition(): array
     {
         return [
-            //
+            'pokedex_id' => Pokedex::inRandomOrder()->first()->id ?? 1,
+            'skill_id' => Skill::inRandomOrder()->first()->id ?? 1,
         ];
     }
 }

@@ -17,7 +17,9 @@ class QuestFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'name' => $this->faker->sentence(3),
+            'requirements' => $this->faker->optional()->sentence(8),
+            'link' => $this->faker->optional()->url,
         ];
     }
 }

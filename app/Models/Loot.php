@@ -9,4 +9,5 @@ class Loot extends Model
 {
     /** @use HasFactory<\Database\Factories\LootFactory> */
     use HasFactory;
+    protected $table = 'loot';
 }

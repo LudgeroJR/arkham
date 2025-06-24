@@ -9,4 +9,5 @@ class AbilityPokedex extends Model
 {
     /** @use HasFactory<\Database\Factories\AbilityPokedexFactory> */
     use HasFactory;
+    protected $table = 'ability_pokedex';
 }

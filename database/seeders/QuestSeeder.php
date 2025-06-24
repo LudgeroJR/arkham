@@ -12,6 +12,6 @@ class QuestSeeder extends Seeder
      */
     public function run(): void
     {
-        //
+        \App\Models\Quest::factory(15)->create();
     }
 }

@@ -9,4 +9,5 @@ class SkillRange extends Model
 {
     /** @use HasFactory<\Database\Factories\SkillRangeFactory> */
     use HasFactory;
+    protected $table = 'skill_range';
 }
