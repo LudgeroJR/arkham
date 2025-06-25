@@ -35,6 +35,7 @@ class DatabaseSeeder extends Seeder
         NpcSellSeeder::class,
         NpcBuySeeder::class,
         LootSeeder::class,
+        GamesTableSeeder::class,
         ]);
         
         

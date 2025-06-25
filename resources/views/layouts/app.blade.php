@@ -44,7 +44,7 @@
     <nav class="hidden md:block">
         <ul class="flex gap-6 text-lg font-semibold items-center">
             <li><a href="{{ route('home') }}" class="text-gray-200 hover:text-green-400 transition">HOME</a></li>
-            <li><a href="#" class="text-gray-200 hover:text-green-400 transition">MEMBROS</a></li>
+            <li><a href="{{ route('members.index') }}" class="text-gray-200 hover:text-green-400 transition">MEMBROS</a></li>
             <!-- Submenu Jogos com Alpine: mantém aberto em hover no botão OU no menu -->
             <div x-data="{ jogosOpen: false }" class="relative">
                 <button type="button"

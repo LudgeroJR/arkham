@@ -11,6 +11,7 @@ class MemberFactory extends Factory
     {
         return [
             'name' => $this->faker->name,
+            'avatar' => 'avatar.png',
             'whatsapp' => $this->faker->phoneNumber,
             'discord' => $this->faker->userName,
             'role_id' => Role::inRandomOrder()->first()->id ?? 1,
