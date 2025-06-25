@@ -5,7 +5,12 @@ module.exports = {
         "./resources/**/*.vue",
     ],
     theme: {
-        extend: {},
+        extend: {
+            fontFamily: {
+                title: ['"Bebas Neue"', "Oswald", "sans-serif"],
+                body: ["Montserrat", "Roboto", "sans-serif"],
+            },
+        },
     },
     plugins: [],
 };
