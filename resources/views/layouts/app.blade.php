@@ -58,7 +58,7 @@
                         x-transition
                         class="absolute left-0 mt-2 bg-black bg-opacity-95 rounded-lg shadow-lg py-2 min-w-[140px] z-50">
                         <li>
-                            <a href="#" class="block px-4 py-2 text-gray-200 hover:bg-green-400 hover:text-black transition">Psoul</a>
+                            <a href="{{ route('psoul.home') }}" class="block px-4 py-2 text-gray-200 hover:bg-green-400 hover:text-black transition">Psoul</a>
                         </li>
                         <!-- Adicione mais jogos aqui -->
                     </ul>
@@ -100,7 +100,7 @@
                 </button>
                 <ul x-show="jogosOpen" x-transition class="ml-4 mt-2 flex flex-col gap-2">
                     <li>
-                        <a href="#" class="block px-2 py-1 text-gray-200 hover:bg-green-400 hover:text-black rounded transition">Psoul</a>
+                        <a href="{{ route('psoul.home') }}" class="block px-2 py-1 text-gray-200 hover:bg-green-400 hover:text-black rounded transition">Psoul</a>
                     </li>
                     <!-- Mais jogos futuramente -->
                 </ul>
@@ -112,7 +112,7 @@
         @yield('content')
     </main>
     <footer class="w-full text-center py-4 text-gray-500 text-sm bg-black bg-opacity-80 relative z-20">
-        &copy; {{ date('Y') }} Guild Arkham - Onde os loucos se juntaram para jogar. Desenvolvido por <a href="https://www.ludgerojunior.com.br" class="text-white-600 hover:text-green-500 transition">Ludgero Junior</a>
+        &copy; {{ date('Y') }} Guild Arkham - Quer fazer parte da Guild? Acesse nosso <a href="https://discord.gg/QqTX6KTFUQ" class="text-white-600 hover:text-green-500 transition"><b>Discord</b></a>.<br>Desenvolvido por <a href="https://www.ludgerojunior.com.br" class="text-white-600 hover:text-green-500 transition">Ludgero Junior</a>
     </footer>
 </body>
 </html>
