@@ -108,7 +108,9 @@
             <a href="#" class="text-gray-200 hover:text-green-400 text-lg font-semibold transition">LOGIN</a>
         </nav>
     </header>
-    <main class="flex-1 w-full flex flex-col items-center justify-start pt-32 pb-10 relative z-10 overflow-y-auto">
+    <main class="flex-1 w-full flex flex-col items-center justify-start pt-32 pb-10 relative z-10 overflow-x-auto">
+        {{-- Seção de conteúdo principal --}}
+        {{-- Conteúdo principal --}}
         @yield('content')
     </main>
     <footer class="w-full text-center py-4 text-gray-500 text-sm bg-black bg-opacity-80 relative z-20">
