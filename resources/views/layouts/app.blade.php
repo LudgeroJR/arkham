@@ -108,13 +108,13 @@
             <a href="#" class="text-gray-200 hover:text-green-400 text-lg font-semibold transition">LOGIN</a>
         </nav>
     </header>
-    <main class="flex-1 w-full flex flex-col items-center justify-start pt-32 pb-10 relative z-10 overflow-x-auto">
+    <main class="flex-1 w-full flex flex-col items-center justify-start pt-28 pb-10 relative z-10 overflow-x-auto">
         {{-- Seção de conteúdo principal --}}
         {{-- Conteúdo principal --}}
         @yield('content')
     </main>
     <footer class="w-full text-center py-4 text-gray-500 text-sm bg-black bg-opacity-80 relative z-20">
-        &copy; {{ date('Y') }} Guild Arkham - Quer fazer parte da Guild? Acesse nosso <a href="https://discord.gg/QqTX6KTFUQ" class="text-white-600 hover:text-green-500 transition"><b>Discord</b></a>.<br>Desenvolvido por <a href="https://www.ludgerojunior.com.br" class="text-white-600 hover:text-green-500 transition">Ludgero Junior</a>
+        &copy; {{ date('Y') }} Guild Arkham - <a href="https://discord.gg/QqTX6KTFUQ" class="text-white-600 hover:text-green-500 transition"><b>Discord</b></a>.<br>Desenvolvido por <a href="https://www.ludgerojunior.com.br" class="text-white-600 hover:text-green-500 transition">Ludgero Junior</a>
     </footer>
 </body>
 </html>
