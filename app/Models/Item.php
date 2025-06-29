@@ -7,6 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class Item extends Model
 {
-    /** @use HasFactory<\Database\Factories\ItemFactory> */
     use HasFactory;
+    protected $table = 'items';
+
+    public function loots()
+    {
+        return $this->hasMany(Loot::class, 'item_id');
+    }
 }

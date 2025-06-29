@@ -7,6 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class Skill extends Model
 {
-    /** @use HasFactory<\Database\Factories\SkillFactory> */
     use HasFactory;
+    protected $table = 'skills';
+
+    public function type()
+    {
+        return $this->belongsTo(Type::class, 'type_id');
+    }
 }

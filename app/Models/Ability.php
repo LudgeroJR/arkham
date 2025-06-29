@@ -7,6 +7,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class Ability extends Model
 {
-    /** @use HasFactory<\Database\Factories\AbilityFactory> */
     use HasFactory;
+
+    public function pokemons()
+    {
+        return $this->belongsToMany(Pokedex::class, 'ability_pokedex')
+            ->withPivot('hidden')
+            ->withTimestamps();
+    }
 }

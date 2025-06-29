@@ -7,6 +7,15 @@ use Illuminate\Database\Eloquent\Model;
 
 class Eggmove extends Model
 {
-    /** @use HasFactory<\Database\Factories\EggmoveFactory> */
     use HasFactory;
+
+    public function pokemon()
+    {
+        return $this->belongsTo(Pokedex::class, 'pokedex_id');
+    }
+
+    public function skill()
+    {
+        return $this->belongsTo(Skill::class, 'skill_id');
+    }
 }
