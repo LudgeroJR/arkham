@@ -7,103 +7,96 @@ use Illuminate\Http\Request;
 
 class PokedexController extends Controller
 {
-    /**
-     * Exibe a lista da pokedex.
-     */
+
     public function index()
     {
         // Lista para a página principal (pode ajustar os campos conforme sua necessidade)
         $pokemonsByDex = Pokedex::orderBy('dex')->orderBy('id')->get()->groupBy('dex');
         return view('psoul.pokedex', ['pokemons_by_dex' => $pokemonsByDex]);
     }
-
-    /**
-     * Exibe o popup com detalhes do Pokémon.
-     *
-     * @param int $id  ID do Pokémon na tabela pokedex
-     */
-    public function show($id)
+    
+    public function showJson($id)
     {
         $pokemon = Pokedex::with([
-                'primaryType',
-                'secondaryType',
-                // Abilities com info de hidden
-                'abilities',
-                // Moveset ordenado por position
-                'moveset.skill.type',
-                'eggmoves.skill.type',
-                'movetutors.skill.type',
-                // Loot e o item relacionado
-                'loot.item',
-            ])->findOrFail($id);
+            'primaryType',
+            'secondaryType',
+            'abilities',
+            'moveset.skill.type',
+            'eggmoves.skill.type',
+            'movetutors.skill.type',
+            'loot.item',
+        ])->findOrFail($id);
 
-        // Organiza as abilities em normal/hidden para facilitar no Blade
+        // Abilities
         $abilities = $pokemon->abilities->map(function ($ability) {
             return [
-                'name'   => $ability->name,
-                'hidden' => $ability->pivot->hidden,
-                // Adicione mais campos se tiver na tabela abilities
-            ];
-        });
-
-        // Moveset ordenado por nível/posição
-        $moveset = $pokemon->moveset->sortBy('position')->map(function ($move) {
-            return [
-                'name'     => $move->skill->name,
-                'level'    => $move->level,
-                'position' => $move->position,
-                'type'     => $move->skill->type->name ?? null,
-                'category' => $move->skill->category,
-                'power'    => $move->skill->power,
-                // Adicione outros campos da skill se necessário
+                'name' => $ability->name,
+                'description' => $ability->description,
+                'hidden' => (bool)$ability->pivot->hidden,
             ];
         })->values();
 
-        // Egg Moves
+        // Moveset (adicionando ranges)
+        $moveset = $pokemon->moveset->sortBy('position')->map(function ($move) {
+            $ranges = $move->skill ? $move->skill->ranges->map(fn($r) => ['name' => $r->name]) : [];
+            return [
+                'position' => $move->position,
+                'category' => $move->skill->category ?? null,
+                'name' => $move->skill->name ?? null,
+                'power' => $move->skill->power ?? null,
+                'level' => $move->level,
+                'type' => $move->skill->type->name ?? null,
+                'ranges' => $ranges,
+            ];
+        })->values();
+
+        // Eggmoves
         $eggmoves = $pokemon->eggmoves->map(function ($eggm) {
+            $ranges = $eggm->skill ? $eggm->skill->ranges->map(fn($r) => ['name' => $r->name]) : [];
             return [
-                'name'     => $eggm->skill->name,
-                'type'     => $eggm->skill->type->name ?? null,
-                'category' => $eggm->skill->category,
-                'power'    => $eggm->skill->power,
+                'category' => $eggm->skill->category ?? null,
+                'name' => $eggm->skill->name ?? null,
+                'power' => $eggm->skill->power ?? null,
+                'type' => $eggm->skill->type->name ?? null,
+                'ranges' => $ranges,
             ];
-        });
+        })->values();
 
-        // Tutor Moves
-        $tutormoves = $pokemon->movetutors->map(function ($tutor) {
+        // Movetutors
+        $movetutors = $pokemon->movetutors->map(function ($tutor) {
+            $ranges = $tutor->skill ? $tutor->skill->ranges->map(fn($r) => ['name' => $r->name]) : [];
             return [
-                'name'     => $tutor->skill->name,
-                'type'     => $tutor->skill->type->name ?? null,
-                'category' => $tutor->skill->category,
-                'power'    => $tutor->skill->power,
+                'category' => $tutor->skill->category ?? null,
+                'name' => $tutor->skill->name ?? null,
+                'power' => $tutor->skill->power ?? null,
+                'type' => $tutor->skill->type->name ?? null,
+                'ranges' => $ranges,
             ];
-        });
+        })->values();
 
-        // Loots
+        // Loot
         $loot = $pokemon->loot->map(function ($loot) {
             return [
-                'item'       => $loot->item->name,
+                'name' => $loot->item->name ?? null,
                 'amount_min' => $loot->amount_min,
                 'amount_max' => $loot->amount_max,
             ];
-        });
+        })->values();
 
-        // Dados principais para o popup
-        $data = [
-            'id'           => $pokemon->id,
-            'dex'          => $pokemon->dex,
-            'name'         => $pokemon->name,
-            'description'  => $pokemon->description,
-            'thumb'        => $pokemon->thumb,
+        // Retorno final
+        return response()->json([
+            'id' => $pokemon->id,
+            'dex' => $pokemon->dex,
+            'name' => $pokemon->name,
+            'description' => $pokemon->description,
+            'thumb' => $pokemon->thumb,
             'primary_type' => $pokemon->primaryType->name ?? null,
             'secondary_type' => $pokemon->secondaryType->name ?? null,
-            'abilities'    => $abilities,
-            'moveset'      => $moveset,
-            'eggmoves'     => $eggmoves,
-            'tutormoves'   => $tutormoves,
-            'loot'         => $loot,
-        ];
-
-        return view('pokedex.popup', compact('data', 'pokemon'));
+            'abilities' => $abilities,
+            'moveset' => $moveset,
+            'egg_moves' => $eggmoves,
+            'move_tutors' => $movetutors,
+            'loot' => $loot,
+        ]);
     }
 }

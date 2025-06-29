@@ -14,4 +14,8 @@ class Skill extends Model
     {
         return $this->belongsTo(Type::class, 'type_id');
     }
+    public function ranges()
+    {
+        return $this->hasMany(SkillRange::class, 'skill_id');
+    }
 }

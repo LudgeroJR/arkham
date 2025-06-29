@@ -7,7 +7,11 @@
         x-data="{
             showModal: false, 
             pokemon: null,
-            openModal(poke) { this.pokemon = poke; this.showModal = true; },
+            openModal(poke) {
+                fetch(`/psoul/pokedex/${poke.id}/json`)
+                    .then(res => res.json())
+                    .then(data => { this.pokemon = data; this.showModal = true; });
+            },
             closeModal() { this.showModal = false; this.pokemon = null; }
         }"
         @keydown.escape.window="closeModal()"
@@ -15,7 +19,7 @@
         class="bg-white/90 rounded-2xl shadow-2xl p-6 max-w-5xl mx-auto w-full min-h-[360px] flex flex-col items-center"
     >
         <h2 class="text-3xl font-bold text-[#B81F1C] mb-6 tracking-wide drop-shadow" style="font-family: 'Bebas Neue', Oswald, Arial, sans-serif;">
-            Pokédex
+            Pokedex
         </h2>
         <div class="w-full max-h-[60vh] overflow-y-auto grid md:grid-cols-4 sm:grid-cols-2 gap-6">
             @foreach($pokemons_by_dex as $dex => $pokemons)
@@ -107,23 +111,7 @@
                     </div>
                     {{-- Abilities, Moveset, Eggmove, Movetutor, Loot --}}
                     <div class="flex-1 flex flex-col gap-3">
-                        {{-- Abilities --}}
-                        <div class="bg-white/90 rounded-xl shadow p-3">
-                            <div class="font-bold text-[#B81F1C] mb-1">Abilities</div>
-                            <template x-if="pokemon.abilities && pokemon.abilities.length">
-                                <ul>
-                                    <template x-for="ability in pokemon.abilities" :key="ability.id">
-                                        <li class="mb-1">
-                                            <span class="font-semibold text-[#C6241D]" x-text="ability.name"></span>:
-                                            <span class="text-[#680F0F]" x-text="ability.description"></span>
-                                        </li>
-                                    </template>
-                                </ul>
-                            </template>
-                            <template x-if="!pokemon.abilities || !pokemon.abilities.length">
-                                <span class="text-gray-400">Nenhuma ability cadastrada.</span>
-                            </template>
-                        </div>
+                        
                         {{-- Moveset --}}
                         <div class="bg-white/90 rounded-xl shadow p-3">
                             <div class="font-bold text-[#B81F1C] mb-1">Moveset</div>
@@ -159,6 +147,23 @@
                             </template>
                             <template x-if="!pokemon.moveset || !pokemon.moveset.length">
                                 <span class="text-gray-400">Nenhum move cadastrado.</span>
+                            </template>
+                        </div>
+                        {{-- Abilities --}}
+                        <div class="bg-white/90 rounded-xl shadow p-3">
+                            <div class="font-bold text-[#B81F1C] mb-1">Abilities</div>
+                            <template x-if="pokemon.abilities && pokemon.abilities.length">
+                                <ul>
+                                    <template x-for="ability in pokemon.abilities" :key="ability.id">
+                                        <li class="mb-1">
+                                            <span class="font-semibold text-[#C6241D]" x-text="ability.name"></span>:
+                                            <span class="text-[#680F0F]" x-text="ability.description"></span>
+                                        </li>
+                                    </template>
+                                </ul>
+                            </template>
+                            <template x-if="!pokemon.abilities || !pokemon.abilities.length">
+                                <span class="text-gray-400">Nenhuma ability cadastrada.</span>
                             </template>
                         </div>
                         {{-- Eggmoves --}}
