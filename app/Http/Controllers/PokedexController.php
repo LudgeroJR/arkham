@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Pokedex;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class PokedexController extends Controller
 {
@@ -14,6 +15,16 @@ class PokedexController extends Controller
         $pokemonsByDex = Pokedex::orderBy('dex')->orderBy('id')->get()->groupBy('dex');
         return view('psoul.pokedex', ['pokemons_by_dex' => $pokemonsByDex]);
     }
+
+    // public function index()
+    // {
+    //     $pokemonsByDex = Pokedex::orderBy('dex')->orderBy('id')->get()->groupBy('dex');
+    //     $allPokemons = Pokedex::orderBy('dex')->orderBy('id')->get()->values(); // array plano
+    //     return view('psoul.pokedex', [
+    //         'pokemons_by_dex' => $pokemonsByDex,
+    //         'all_pokemons' => $allPokemons
+    //     ]);
+    // }
     
     public function showJson($id)
     {
@@ -22,8 +33,11 @@ class PokedexController extends Controller
             'secondaryType',
             'abilities',
             'moveset.skill.type',
+            'moveset.skill.ranges',
             'eggmoves.skill.type',
+            'eggmoves.skill.ranges',
             'movetutors.skill.type',
+            'movetutors.skill.ranges',
             'loot.item',
         ])->findOrFail($id);
 
@@ -38,7 +52,11 @@ class PokedexController extends Controller
 
         // Moveset (adicionando ranges)
         $moveset = $pokemon->moveset->sortBy('position')->map(function ($move) {
-            $ranges = $move->skill ? $move->skill->ranges->map(fn($r) => ['name' => $r->name]) : [];
+            $ranges = $move->skill
+                ? $move->skill->ranges->map(function($r) {
+                    return ['name' => $r->range ? $r->range->name : null];
+                })
+                : [];
             return [
                 'position' => $move->position,
                 'category' => $move->skill->category ?? null,
@@ -52,7 +70,9 @@ class PokedexController extends Controller
 
         // Eggmoves
         $eggmoves = $pokemon->eggmoves->map(function ($eggm) {
-            $ranges = $eggm->skill ? $eggm->skill->ranges->map(fn($r) => ['name' => $r->name]) : [];
+            $ranges = $eggm->skill
+                ? $eggm->skill->ranges->map(fn($r) => ['name' => $r->range ? $r->range->name : null])
+                : [];
             return [
                 'category' => $eggm->skill->category ?? null,
                 'name' => $eggm->skill->name ?? null,
@@ -62,9 +82,10 @@ class PokedexController extends Controller
             ];
         })->values();
 
-        // Movetutors
         $movetutors = $pokemon->movetutors->map(function ($tutor) {
-            $ranges = $tutor->skill ? $tutor->skill->ranges->map(fn($r) => ['name' => $r->name]) : [];
+            $ranges = $tutor->skill
+                ? $tutor->skill->ranges->map(fn($r) => ['name' => $r->range ? $r->range->name : null])
+                : [];
             return [
                 'category' => $tutor->skill->category ?? null,
                 'name' => $tutor->skill->name ?? null,

@@ -14,4 +14,9 @@ class SkillRange extends Model
     {
         return $this->belongsTo(Skill::class, 'skill_id');
     }
+
+    public function range()
+    {
+        return $this->belongsTo(Range::class, 'range_id');
+    }
 }

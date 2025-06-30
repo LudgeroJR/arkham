@@ -11,6 +11,7 @@ class Moveset extends Model
 
     public function pokemon()
     {
+        // Certifique-se que a foreign key está correta (pokedex_id)
         return $this->belongsTo(Pokedex::class, 'pokedex_id');
     }
 

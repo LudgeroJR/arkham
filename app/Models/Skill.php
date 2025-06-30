@@ -16,6 +16,7 @@ class Skill extends Model
     }
     public function ranges()
     {
-        return $this->hasMany(SkillRange::class, 'skill_id');
+        return $this->hasMany(SkillRange::class, 'skill_id')->with('range');
     }
+
 }

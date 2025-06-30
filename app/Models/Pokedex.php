@@ -27,21 +27,22 @@ class Pokedex extends Model
 
     // Moveset (ordenado por position)
     public function moveset() {
-        return $this->hasMany(Moveset::class)->orderBy('position');
+        // Certifique-se que a foreign key está correta (pokedex_id)
+        return $this->hasMany(Moveset::class, 'pokedex_id')->orderBy('position');
     }
 
     // Eggmoves
     public function eggmoves() {
-        return $this->hasMany(Eggmove::class);
+        return $this->hasMany(Eggmove::class, 'pokedex_id');
     }
 
     // Movetutors
     public function movetutors() {
-        return $this->hasMany(Movetutor::class);
+        return $this->hasMany(Movetutor::class, 'pokedex_id');
     }
 
     // Loot
     public function loot() {
-        return $this->hasMany(Loot::class);
+        return $this->hasMany(Loot::class, 'pokedex_id');
     }
 }
