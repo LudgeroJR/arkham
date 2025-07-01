@@ -10,7 +10,8 @@ Route::prefix('psoul')->name('psoul.')->group(function () {
     Route::get('/', fn() => view('psoul.home'))->name('home');
     Route::get('/pokedex', [\App\Http\Controllers\PokedexController::class, 'index'])->name('pokedex');
     Route::get('/pokedex/{id}/json', [\App\Http\Controllers\PokedexController::class, 'showJson'])->name('pokedex.showJson');
-    Route::get('/itens', fn() => view('psoul.itens'))->name('itens');
+    Route::get('/itens', [\App\Http\Controllers\ItemController::class, 'index'])->name('itens');
+    Route::get('/itens/{id}/json', [\App\Http\Controllers\ItemController::class, 'showJson'])->name('itens.json');
     Route::get('/skills', fn() => view('psoul.skills'))->name('skills');
     Route::get('/quests', fn() => view('psoul.quests'))->name('quests');
 });

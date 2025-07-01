@@ -7,6 +7,16 @@ use Illuminate\Database\Eloquent\Model;
 
 class ItemComposition extends Model
 {
-    /** @use HasFactory<\Database\Factories\ItemCompositionFactory> */
     use HasFactory;
+    protected $table = 'item_compositions';
+
+    public function item()
+    {
+        return $this->belongsTo(Item::class, 'item_id');
+    }
+
+    public function material()
+    {
+        return $this->belongsTo(Item::class, 'material_id');
+    }
 }
