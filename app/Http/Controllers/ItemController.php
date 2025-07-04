@@ -40,7 +40,8 @@ class ItemController extends Controller
             ])->values(),
             'dropped_by' => ($item->droppedBy ?? collect([]))->map(fn($p) => [
                 'id' => $p->id,
-                'name' => $p->name
+                'name' => $p->name,
+                'thumb' => $p->thumb
             ])->values(),
             'sold_by' => ($item->soldByNPCs ?? collect([]))->map(fn($n) => [
                 'id' => $n->id,

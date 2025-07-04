@@ -12,7 +12,8 @@ Route::prefix('psoul')->name('psoul.')->group(function () {
     Route::get('/pokedex/{id}/json', [\App\Http\Controllers\PokedexController::class, 'showJson'])->name('pokedex.showJson');
     Route::get('/itens', [\App\Http\Controllers\ItemController::class, 'index'])->name('itens');
     Route::get('/itens/{id}/json', [\App\Http\Controllers\ItemController::class, 'showJson'])->name('itens.json');
-    Route::get('/skills', fn() => view('psoul.skills'))->name('skills');
+    Route::get('/skills', [\App\Http\Controllers\SkillController::class, 'index'])->name('skills');
+    Route::get('/skills/{id}/json', [\App\Http\Controllers\SkillController::class, 'showJson'])->name('skills.json');
     Route::get('/quests', fn() => view('psoul.quests'))->name('quests');
 });
 

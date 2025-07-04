@@ -18,5 +18,26 @@ class Skill extends Model
     {
         return $this->hasMany(SkillRange::class, 'skill_id')->with('range');
     }
+    
+    // Pokémons que aprendem no moveset
+    public function movesetPokemons()
+    {
+        // Corrija o nome da tabela para 'movesets' se for esse o nome correto
+        return $this->belongsToMany(Pokedex::class, 'movesets', 'skill_id', 'pokedex_id');
+    }
+
+    // Pokémons que aprendem como eggmove
+    public function eggmovePokemons()
+    {
+        // Corrija o nome da tabela para 'eggmoves'
+        return $this->belongsToMany(Pokedex::class, 'eggmoves', 'skill_id', 'pokedex_id');
+    }
+
+    // Pokémons que aprendem como movetutor
+    public function movetutorPokemons()
+    {
+        // Corrija o nome da tabela para 'movetutors'
+        return $this->belongsToMany(Pokedex::class, 'movetutors', 'skill_id', 'pokedex_id');
+    }
 
 }

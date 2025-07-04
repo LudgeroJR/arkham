@@ -42,7 +42,7 @@
             class="mb-4 px-4 py-2 rounded border border-[#EDC416] focus:outline-none focus:ring-2 focus:ring-[#EDC416] w-full max-w-md"
         >
 
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 w-full">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 w-full overflow-y-auto">
             @foreach($items as $itemLoop)
                 <div 
                     class="cursor-pointer bg-yellow-100 rounded p-2 text-center font-bold hover:bg-yellow-200 transition"
@@ -61,7 +61,7 @@
         >
             <div 
                 @click.away="closeModal()" 
-                class="bg-gradient-to-br from-[#F8EE9A] via-[#EDC416] to-[#EA7514] rounded-2xl shadow-2xl p-8 max-w-xl w-full mx-4 relative overflow-y-auto max-h-[90vh] border-4 border-[#B81F1C] flex flex-col gap-4"
+                class="bg-gradient-to-br from-[#F8EE9A] via-[#EDC416] to-[#EA7514] rounded-2xl shadow-2xl p-8 max-w-3xl w-full mx-4 relative overflow-y-auto max-h-[90vh] border-4 border-[#B81F1C] flex flex-col gap-4"
             >
                 <button 
                     @click="closeModal()" 
@@ -117,11 +117,14 @@
                                 <span class="inline-block w-3 h-3 rounded-full bg-[#B81F1C]"></span>
                                 Dropado por:
                             </div>
-                            <ul class="list-disc list-inside text-[#680F0F] font-medium ml-4">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-2 overflow-y-auto">
                                 <template x-for="poke in modalItem.dropped_by" :key="poke.id">
-                                    <li x-text="poke.name"></li>
+                                    <div class="bg-[#F8EE9A] rounded px-2 py-1 text-[#B81F1C] font-bold text-center border border-[#EDC416] shadow-sm flex items-center gap-2 justify-center">
+                                        <img :src="'{{ asset('images/jogos/psoul/pokemonsthumb') }}/' + poke.thumb" :alt="poke.name" class="w-6 h-6 object-contain rounded-full border border-[#B81F1C] bg-white" loading="lazy">
+                                        <span x-text="poke.name"></span>
+                                    </div>
                                 </template>
-                            </ul>
+                            </div>
                         </div>
                     </template>
 
