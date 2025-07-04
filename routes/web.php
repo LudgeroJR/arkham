@@ -19,15 +19,20 @@ Route::prefix('psoul')->name('psoul.')->group(function () {
     Route::get('/quests', [\App\Http\Controllers\QuestController::class, 'index'])->name('quests');
 });
 
-// ROTAS DE AUTENTICAÇÃO E PERFIL (do Breeze)
+// Rota dashboard para pós-login Breeze/Fortify
 Route::get('/dashboard', function () {
-    return view('dashboard');
+    return view('admin.dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+// ROTAS DE AUTENTICAÇÃO E PERFIL (do Breeze)
+// Remova ou ajuste esta rota se não for necessária
+// Route::get('/admin', function () {
+//     return view('dashboard');
+// })->middleware(['auth', 'verified'])->name('dashboard');
+
+Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/', fn() => view('admin.dashboard'))->name('dashboard');
+    // Aqui depois entram os CRUDs
 });
 
 // Inclui as rotas de autenticação do Breeze (login, registro, etc)

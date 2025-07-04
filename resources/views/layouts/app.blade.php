@@ -63,7 +63,7 @@
                         <!-- Adicione mais jogos aqui -->
                     </ul>
                 </div>
-                <li><a href="#" class="text-gray-200 hover:text-green-400 transition">LOGIN</a></li>
+                <li><a href="{{ route('login') }}" class="text-gray-200 hover:text-green-400 transition">LOGIN</a></li>
             </ul>
         </nav>
         <!-- Mobile Sanduba -->
@@ -105,7 +105,7 @@
                     <!-- Mais jogos futuramente -->
                 </ul>
             </div>
-            <a href="#" class="text-gray-200 hover:text-green-400 text-lg font-semibold transition">LOGIN</a>
+            <a href="{{ route('login') }}" class="text-gray-200 hover:text-green-400 text-lg font-semibold transition">LOGIN</a>
         </nav>
     </header>
     <main class="flex-1 w-full flex flex-col items-center justify-start pt-28 pb-10 relative z-10 overflow-x-auto">
