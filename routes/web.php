@@ -23,6 +23,8 @@ Route::prefix('psoul')->name('psoul.')->group(function () {
 Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', fn() => view('admin.dashboard'))->name('dashboard');
     Route::get('/members', [\App\Http\Controllers\MemberController::class, 'adminIndex'])->name('members');
+    Route::post('/members/ajax', [\App\Http\Controllers\MemberController::class, 'storeAjax'])->name('members.ajax.store');
+    Route::delete('/members/ajax/{member}', [\App\Http\Controllers\MemberController::class, 'destroyAjax'])->name('members.ajax.destroy');
     // Outras rotas do admin...
 });
 

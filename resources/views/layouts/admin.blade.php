@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="flex h-full max-h-[80vh] bg-gradient-to-br from-[#0F191A] via-[#0B2C21] to-[#0A4327] max-w-7xl mx-auto w-full">
+<div class="flex h-full max-h-[80vh] bg-gradient-to-br from-[#0F191A] via-[#0B2C21] to-[#0A4327] max-w-[95rem] mx-auto w-full">
     <!-- Sidebar -->
     <aside class="w-64 bg-black/90 border-r-4 border-green-400 flex flex-col py-8 px-4 h-full">
         <h2 class="text-2xl font-bold text-green-400 mb-8 text-center tracking-wider">Cadastros</h2>
