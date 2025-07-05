@@ -19,8 +19,15 @@ Route::prefix('psoul')->name('psoul.')->group(function () {
     Route::get('/quests', [\App\Http\Controllers\QuestController::class, 'index'])->name('quests');
 });
 
+// Rotas do painel admin (protegidas por auth)
+Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/', fn() => view('admin.dashboard'))->name('dashboard');
+    Route::get('/members', [\App\Http\Controllers\MemberController::class, 'adminIndex'])->name('members');
+    // Outras rotas do admin...
+});
+
 // Rota dashboard para pós-login Breeze/Fortify
-Route::get('/dashboard', function () {
+Route::get('/admin/dashboard', function () {
     return view('admin.dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
@@ -29,11 +36,6 @@ Route::get('/dashboard', function () {
 // Route::get('/admin', function () {
 //     return view('dashboard');
 // })->middleware(['auth', 'verified'])->name('dashboard');
-
-Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
-    Route::get('/', fn() => view('admin.dashboard'))->name('dashboard');
-    // Aqui depois entram os CRUDs
-});
 
 // Inclui as rotas de autenticação do Breeze (login, registro, etc)
 require __DIR__.'/auth.php';

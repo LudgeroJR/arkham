@@ -16,16 +16,6 @@ class PokedexController extends Controller
         return view('psoul.pokedex', ['pokemons_by_dex' => $pokemonsByDex]);
     }
 
-    // public function index()
-    // {
-    //     $pokemonsByDex = Pokedex::orderBy('dex')->orderBy('id')->get()->groupBy('dex');
-    //     $allPokemons = Pokedex::orderBy('dex')->orderBy('id')->get()->values(); // array plano
-    //     return view('psoul.pokedex', [
-    //         'pokemons_by_dex' => $pokemonsByDex,
-    //         'all_pokemons' => $allPokemons
-    //     ]);
-    // }
-    
     public function showJson($id)
     {
         $pokemon = Pokedex::with([
@@ -119,5 +109,35 @@ class PokedexController extends Controller
             'move_tutors' => $movetutors,
             'loot' => $loot,
         ]);
+    }
+
+    public function create()
+    {
+        // Busca todos os cargos para o select
+        $roles = Role::all();
+        return view('members.create', compact('roles'));
+    }
+
+    public function store(Request $request)
+    {
+        // Validação dos dados
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'whatsapp' => 'nullable|string|max:100',
+            'discord' => 'nullable|string|max:100',
+            'role_id' => 'required|exists:roles,id',
+        ]);
+
+        // Upload do avatar se enviado
+        if ($request->hasFile('avatar')) {
+            $avatarPath = $request->file('avatar')->store('avatars', 'public');
+            $validated['avatar'] = $avatarPath;
+        }
+
+        // Cria o membro
+        Member::create($validated);
+
+        return redirect()->route('members.index')->with('success', 'Membro cadastrado com sucesso!');
     }
 }
