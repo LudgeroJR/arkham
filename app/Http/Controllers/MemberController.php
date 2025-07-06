@@ -155,4 +155,93 @@ class MemberController extends Controller
             ], 500);
         }
     }
+
+    public function showAjax(Member $member)
+{
+    $member->load('games');
+        return response()->json([
+            'success' => true,
+            'member' => [
+                'id' => $member->id,
+                'name' => $member->name,
+                'avatar' => $member->avatar ? asset('images/avatars/' . $member->avatar) : null,
+                'whatsapp' => $member->whatsapp,
+                'discord' => $member->discord,
+                'role_id' => $member->role_id,
+                'start_in' => $member->start_in,
+                'games' => $member->games->map(function($g){
+                    return [
+                        'name' => $g->name,
+                        'nick' => $g->nick,
+                    ];
+                })->toArray()
+            ]
+        ]);
+    }
+    public function updateAjax(Request $request, Member $member)
+    {
+        try {
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+                'whatsapp' => 'nullable|string|max:100',
+                'discord' => 'nullable|string|max:100',
+                'role_id' => 'required|integer',
+                'start_in' => 'nullable|date',
+                'games' => 'array',
+                'games.*.name' => 'nullable|string|max:255',
+                'games.*.nick' => 'nullable|string|max:255',
+            ]);
+
+            // Atualiza o avatar se enviado
+            if ($request->hasFile('avatar')) {
+                $avatarDir = public_path('images/avatars');
+                if (!file_exists($avatarDir)) {
+                    mkdir($avatarDir, 0777, true);
+                }
+                $avatarName = time() . '_' . $request->file('avatar')->getClientOriginalName();
+                $request->file('avatar')->move($avatarDir, $avatarName);
+                $validated['avatar'] = $avatarName;
+                // Remove avatar antigo se existir
+                if ($member->avatar && file_exists($avatarDir . '/' . $member->avatar)) {
+                    @unlink($avatarDir . '/' . $member->avatar);
+                }
+            } else {
+                // Não sobrescreve avatar se não mandou novo
+                unset($validated['avatar']);
+            }
+
+            $validated['start_in'] = $request->input('start_in');
+            $member->update($validated);
+
+            // Atualiza os jogos
+            $member->games()->delete();
+            if ($request->has('games')) {
+                foreach ($request->input('games') as $game) {
+                    if (!empty($game['name']) || !empty($game['nick'])) {
+                        $member->games()->create([
+                            'name' => $game['name'] ?? '',
+                            'nick' => $game['nick'] ?? '',
+                        ]);
+                    }
+                }
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Membro atualizado com sucesso!',
+            ]);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->validator->errors()->first(),
+            ], 422);
+        } catch (\Exception $e) {
+            Log::error('Erro ao atualizar membro: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro interno no servidor: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
 }

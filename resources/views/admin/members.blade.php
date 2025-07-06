@@ -188,14 +188,19 @@ function memberCrud() {
             if (this.form.avatar) {
                 formData.append('avatar', this.form.avatar);
             }
-            // Adiciona os jogos ao formData
             this.form.games.forEach((game, idx) => {
                 formData.append(`games[${idx}][name]`, game.name);
                 formData.append(`games[${idx}][nick]`, game.nick);
             });
 
-            fetch('{{ route('admin.members.ajax.store') }}', {
-                method: 'POST',
+            const isEdit = !!this.form.id;
+            const url = isEdit
+                ? `{{ url('admin/members/ajax') }}/${this.form.id}`
+                : `{{ route('admin.members.ajax.store') }}`;
+            const method = isEdit ? 'POST' : 'POST';
+
+            fetch(url, {
+                method,
                 headers: {
                     'X-CSRF-TOKEN': '{{ csrf_token() }}'
                 },
@@ -209,27 +214,49 @@ function memberCrud() {
                     throw new Error('Erro inesperado no servidor.');
                 }
                 if (!response.ok) {
-                    throw new Error(data.message || 'Erro ao cadastrar membro');
+                    throw new Error(data.message || 'Erro ao salvar membro');
                 }
                 return data;
             })
             .then(data => {
                 if (data.success) {
                     this.successMsg = data.message;
-                    this.resetForm();
+                    setTimeout(() => location.reload(), 800);
                 } else {
-                    this.errorMsg = 'Erro ao cadastrar membro!';
+                    this.errorMsg = 'Erro ao salvar membro!';
                 }
             })
             .catch(error => {
-                this.errorMsg = error.message || 'Erro ao cadastrar membro.';
+                this.errorMsg = error.message || 'Erro ao salvar membro.';
             });
         },
         addMemberToTable(member) {
             location.reload();
         },
         editMember(id) {
-            // Na próxima etapa
+            console.log('Abrindo modal para editar membro', id); // debug
+            this.modalTitle = 'Editar Membro';
+            fetch(`{{ url('admin/members/ajax') }}/${id}`)
+                .then(async response => {
+                    let data = await response.json();
+                    if (!data.success) throw new Error(data.message || 'Erro ao buscar dados.');
+                    return data.member;
+                })
+                .then(member => {
+                    this.form.id = member.id;
+                    this.form.name = member.name;
+                    this.form.avatar = null; // Não popula input file
+                    this.form.avatar_preview = member.avatar || null;
+                    this.form.whatsapp = member.whatsapp || '';
+                    this.form.discord = member.discord || '';
+                    this.form.role_id = member.role_id || '';
+                    this.form.start_in = member.start_in || '';
+                    this.form.games = member.games || [];
+                    this.showModal = true;
+                })
+                .catch(e => {
+                    this.errorMsg = e.message || 'Erro ao buscar dados do membro.';
+                });
         },
         deleteMember(id) {
             if (!confirm('Tem certeza que deseja excluir este membro?')) return;
