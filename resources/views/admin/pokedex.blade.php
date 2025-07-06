@@ -1,0 +1,328 @@
+@extends('layouts.admin')
+
+@section('admin-content')
+<div x-data="pokedexCrud()" class="w-full max-w-7xl mx-auto h-full overflow-auto">
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-3xl font-extrabold title text-green-400 tracking-wider">Gerenciar Pokédex</h2>
+        <button @click="openModal()" class="bg-green-400 hover:bg-green-600 text-black font-bold px-6 py-2 rounded shadow transition">Adicionar</button>
+    </div>
+    <div class="overflow-x-auto rounded-xl shadow">
+        <table class="min-w-full bg-black/80 border border-green-400 text-green-200">
+            <thead>
+                <tr>
+                    <th class="py-3 px-4 text-left">Dex</th>
+                    <th class="py-3 px-4 text-left">Nome</th>
+                    <th class="py-3 px-4 text-left">Descrição</th>
+                    <th class="py-3 px-4 text-left">Thumb</th>
+                    <th class="py-3 px-4 text-center w-32">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($pokemons as $poke)
+                    <tr class="border-t border-green-700 hover:bg-green-950/50 transition" data-pokedex-id="{{ $poke->id }}">
+                        <td class="py-3 px-4">{{ $poke->dex }}</td>
+                        <td class="py-3 px-4">{{ $poke->name }}</td>
+                        <td class="py-3 px-4">{{ $poke->description ? Str::limit($poke->description, 30) : '-' }}</td>
+                        <td class="py-3 px-4">
+                            @if($poke->thumb)
+                                <img src="{{ asset('images/jogos/psoul/pokemonsthumb/'.$poke->thumb) }}" alt="Thumb" class="w-10 h-10 object-contain border-2 border-green-400 rounded bg-black">
+                            @else
+                                <span class="text-green-200">-</span>
+                            @endif
+                        </td>
+                        <td class="py-3 px-4 flex justify-center gap-2">
+                            <button class="p-1 rounded hover:bg-green-400 hover:text-black transition"
+                                @click="editPokedex({{ $poke->id }})" title="Editar">
+                                <span class="material-icons">edit</span>
+                            </button>
+                            <button class="p-1 rounded hover:bg-red-500 hover:text-white transition"
+                                @click="deletePokedex({{ $poke->id }})" title="Excluir">
+                                <span class="material-icons">delete</span>
+                            </button>
+                        </td>
+                    </tr>
+                @endforeach
+                @if($pokemons->isEmpty())
+                    <tr>
+                        <td colspan="5" class="py-6 text-center text-green-400">Nenhum Pokémon cadastrado ainda.</td>
+                    </tr>
+                @endif
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Modal de Cadastro/Edição -->
+    <div x-show="showModal" x-transition class="fixed inset-0 z-50 bg-black/90 flex items-center justify-center overflow-auto">
+        <div @click.away="closeModal()" class="bg-black/95 border-4 border-green-400 rounded-2xl shadow-2xl p-10 w-full max-w-[95rem] mx-4 relative flex flex-col gap-4 overflow-auto">
+            <button @click="closeModal()" class="absolute top-4 right-4 text-3xl text-green-400 hover:text-green-600 font-extrabold">&times;</button>
+            <h3 class="text-2xl font-bold text-green-400 mb-2" x-text="form.id ? 'Editar Pokémon' : 'Adicionar Pokémon'"></h3>
+            <form @submit.prevent="submitPokedex" class="grid grid-cols-1 md:grid-cols-4 gap-6" enctype="multipart/form-data" autocomplete="off">
+                <!-- Coluna 1: Dados básicos + Abilities -->
+                <div class="flex flex-col gap-4">
+                    <div class="flex gap-2">
+                        <div class="w-24">
+                            <label class="font-bold text-green-100">Dex</label>
+                            <input type="number" min="1" x-model="form.dex" required class="w-full rounded border border-green-400 px-2 py-2 bg-gray-900 text-green-200">
+                        </div>
+                        <div class="flex-1">
+                            <label class="font-bold text-green-100">Nome</label>
+                            <input type="text" x-model="form.name" required class="w-full rounded border border-green-400 px-2 py-2 bg-gray-900 text-green-200">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="font-bold text-green-100">Descrição</label>
+                        <textarea x-model="form.description" rows="3" class="w-full rounded border border-green-400 px-3 py-2 bg-gray-900 text-green-200"></textarea>
+                    </div>
+                    <div>
+                        <label class="font-bold text-green-100">Thumb (nome do arquivo)</label>
+                        <input type="text" x-model="form.thumb" placeholder="ex: bulbasaur.png" class="w-full rounded border border-green-400 px-3 py-2 bg-gray-900 text-green-200">
+                    </div>
+                    <div class="flex gap-2">
+                        <div class="flex-1">
+                            <label class="font-bold text-green-100">Tipo Primário</label>
+                            <select x-model="form.primary_type" class="w-full rounded border border-green-400 px-3 py-2 bg-gray-900 text-green-200">
+                                <option value="">Selecione</option>
+                                @foreach($types as $type)
+                                    <option value="{{ $type->id }}">{{ $type->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="flex-1">
+                            <label class="font-bold text-green-100">Tipo Secundário</label>
+                            <select x-model="form.secondary_type" class="w-full rounded border border-green-400 px-3 py-2 bg-gray-900 text-green-200">
+                                <option value="">Nenhum</option>
+                                @foreach($types as $type)
+                                    <option value="{{ $type->id }}">{{ $type->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    <!-- Abilities -->
+                    <div class="border border-green-400 rounded-xl p-3 mt-2">
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="font-bold text-green-200">Abilities</span>
+                            <button type="button" @click="addAbility" class="text-green-400 hover:text-green-600 flex items-center gap-1">
+                                <span class="material-icons text-lg">add_circle</span> Adicionar
+                            </button>
+                        </div>
+                        <template x-for="(ability, idx) in form.abilities" :key="idx">
+                            <div class="flex items-center gap-2 mb-1">
+                                <select x-model="ability.id" class="rounded border border-green-400 px-2 py-1 bg-gray-900 text-green-200 flex-1">
+                                    <option value="">Selecione</option>
+                                    @foreach($abilities as $ab)
+                                        <option value="{{ $ab->id }}">{{ $ab->name }}</option>
+                                    @endforeach
+                                </select>
+                                <label class="flex items-center gap-1 text-green-300">
+                                    <input type="checkbox" x-model="ability.hidden"> Hidden
+                                </label>
+                                <button type="button" @click="removeAbility(idx)" class="text-red-400 hover:text-red-600 text-xl font-bold px-2" title="Remover">
+                                    <span class="material-icons">remove_circle</span>
+                                </button>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+                <!-- Coluna 2: Moveset -->
+                <div class="flex flex-col gap-4">
+                    <div class="border border-green-400 rounded-xl p-3">
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="font-bold text-green-200">Moveset</span>
+                            <button type="button" @click="addMove" class="text-green-400 hover:text-green-600 flex items-center gap-1">
+                                <span class="material-icons text-lg">add_circle</span> Adicionar
+                            </button>
+                        </div>
+                        <template x-for="(move, idx) in form.moveset" :key="idx">
+                            <div class="flex items-center gap-2 mb-1">
+                                <input type="number" min="1" max="99" x-model="move.position" readonly class="w-12 rounded border border-green-400 px-2 py-1 bg-gray-900 text-green-200 text-center" placeholder="Pos">
+                                <select x-model="move.skill_id" class="flex-1 rounded border border-green-400 px-2 py-1 bg-gray-900 text-green-200">
+                                    <option value="">Skill</option>
+                                    @foreach($skills as $sk)
+                                        <option value="{{ $sk->id }}">{{ $sk->name }}</option>
+                                    @endforeach
+                                </select>
+                                <input type="number" min="1" max="99" x-model="move.level" class="w-14 rounded border border-green-400 px-2 py-1 bg-gray-900 text-green-200 text-center" placeholder="Level">
+                                <button type="button" @click="removeMove(idx)" class="text-red-400 hover:text-red-600 text-xl font-bold px-2" title="Remover">
+                                    <span class="material-icons">remove_circle</span>
+                                </button>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+                <!-- Coluna 3: Eggmoves + Movetutors -->
+                <div class="flex flex-col gap-4">
+                    <!-- Eggmove -->
+                    <div class="border border-green-400 rounded-xl p-3">
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="font-bold text-green-200">Eggmoves</span>
+                            <button type="button" @click="addEggmove" class="text-green-400 hover:text-green-600 flex items-center gap-1">
+                                <span class="material-icons text-lg">add_circle</span> Adicionar
+                            </button>
+                        </div>
+                        <template x-for="(eggmove, idx) in form.eggmoves" :key="idx">
+                            <div class="flex items-center gap-2 mb-1">
+                                <select x-model="eggmove.skill_id" class="flex-1 rounded border border-green-400 px-2 py-1 bg-gray-900 text-green-200">
+                                    <option value="">Skill</option>
+                                    @foreach($skills as $sk)
+                                        <option value="{{ $sk->id }}">{{ $sk->name }}</option>
+                                    @endforeach
+                                </select>
+                                <button type="button" @click="removeEggmove(idx)" class="text-red-400 hover:text-red-600 text-xl font-bold px-2" title="Remover">
+                                    <span class="material-icons">remove_circle</span>
+                                </button>
+                            </div>
+                        </template>
+                    </div>
+                    <!-- Movetutor -->
+                    <div class="border border-green-400 rounded-xl p-3">
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="font-bold text-green-200">Movetutors</span>
+                            <button type="button" @click="addMovetutor" class="text-green-400 hover:text-green-600 flex items-center gap-1">
+                                <span class="material-icons text-lg">add_circle</span> Adicionar
+                            </button>
+                        </div>
+                        <template x-for="(movetutor, idx) in form.movetutors" :key="idx">
+                            <div class="flex items-center gap-2 mb-1">
+                                <select x-model="movetutor.skill_id" class="flex-1 rounded border border-green-400 px-2 py-1 bg-gray-900 text-green-200">
+                                    <option value="">Skill</option>
+                                    @foreach($skills as $sk)
+                                        <option value="{{ $sk->id }}">{{ $sk->name }}</option>
+                                    @endforeach
+                                </select>
+                                <button type="button" @click="removeMovetutor(idx)" class="text-red-400 hover:text-red-600 text-xl font-bold px-2" title="Remover">
+                                    <span class="material-icons">remove_circle</span>
+                                </button>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+                <!-- Coluna 4: Loot -->
+                <div class="flex flex-col gap-4">
+                    <div class="border border-green-400 rounded-xl p-3">
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="font-bold text-green-200">Loot</span>
+                            <button type="button" @click="addLoot" class="text-green-400 hover:text-green-600 flex items-center gap-1">
+                                <span class="material-icons text-lg">add_circle</span> Adicionar
+                            </button>
+                        </div>
+                        <template x-for="(loot, idx) in form.loot" :key="idx">
+                            <div class="flex items-center gap-2 mb-1">
+                                <select x-model="loot.item_id" class="flex-1 rounded border border-green-400 px-2 py-1 bg-gray-900 text-green-200">
+                                    <option value="">Item</option>
+                                    @foreach($items as $item)
+                                        <option value="{{ $item->id }}">{{ $item->name }}</option>
+                                    @endforeach
+                                </select>
+                                <input type="number" min="1" max="99" x-model="loot.min" class="w-12 rounded border border-green-400 px-2 py-1 bg-gray-900 text-green-200 text-center" placeholder="Min">
+                                <input type="number" min="1" max="99" x-model="loot.max" class="w-12 rounded border border-green-400 px-2 py-1 bg-gray-900 text-green-200 text-center" placeholder="Max">
+                                <button type="button" @click="removeLoot(idx)" class="text-red-400 hover:text-red-600 text-xl font-bold px-2" title="Remover">
+                                    <span class="material-icons">remove_circle</span>
+                                </button>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+                <!-- Mensagens -->
+                <div class="col-span-4">
+                    <div x-show="errorMsg" class="text-red-400 text-sm mt-2" x-text="errorMsg"></div>
+                    <div x-show="successMsg" class="text-green-400 text-sm mt-2" x-text="successMsg"></div>
+                </div>
+                <div class="col-span-4 flex gap-3 justify-end">
+                    <button type="submit" class="bg-green-400 hover:bg-green-600 text-black font-bold rounded px-8 py-2 transition">
+                        Salvar
+                    </button>
+                    <button type="button" @click="closeModal()" class="bg-gray-500 hover:bg-gray-700 text-white rounded px-8 py-2 transition">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Material Icons CDN -->
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<!-- Alpine.js CDN -->
+<script src="//unpkg.com/alpinejs" defer></script>
+<script>
+function pokedexCrud() {
+    return {
+        showModal: false,
+        form: {
+            id: null,
+            dex: '',
+            name: '',
+            description: '',
+            thumb: null,
+            thumb_preview: null,
+            primary_type: '',
+            secondary_type: '',
+            abilities: [],
+            moveset: [],
+            eggmoves: [],
+            movetutors: [],
+            loot: []
+        },
+        errorMsg: '',
+        successMsg: '',
+        openModal() {
+            this.resetForm();
+            this.showModal = true;
+        },
+        closeModal() {
+            this.showModal = false;
+            this.resetForm();
+            this.errorMsg = '';
+            this.successMsg = '';
+        },
+        resetForm() {
+            this.form = {
+                id: null, dex: '', name: '', description: '', thumb: null, thumb_preview: null,
+                primary_type: '', secondary_type: '',
+                abilities: [], moveset: [], eggmoves: [], movetutors: [], loot: []
+            };
+        },
+        handleThumb(e) {
+            const file = e.target.files[0];
+            if (file) {
+                this.form.thumb = file;
+                this.form.thumb_preview = URL.createObjectURL(file);
+            }
+        },
+        addAbility() { this.form.abilities.push({ id: '', hidden: false }); },
+        removeAbility(idx) { this.form.abilities.splice(idx, 1); },
+        addMove() {
+            const nextPos = this.form.moveset.length + 1;
+            this.form.moveset.push({ position: nextPos, skill_id: '', level: '' });
+        },
+        removeMove(idx) {
+            this.form.moveset.splice(idx, 1);
+            // Recalcula posições
+            this.form.moveset.forEach((m, i) => m.position = i + 1);
+        },
+        addEggmove() { this.form.eggmoves.push({ skill_id: '' }); },
+        removeEggmove(idx) { this.form.eggmoves.splice(idx, 1); },
+        addMovetutor() { this.form.movetutors.push({ skill_id: '' }); },
+        removeMovetutor(idx) { this.form.movetutors.splice(idx, 1); },
+        addLoot() { this.form.loot.push({ item_id: '', min: '', max: '' }); },
+        removeLoot(idx) { this.form.loot.splice(idx, 1); },
+        submitPokedex() {
+            // Integração será feita na próxima etapa!
+            this.successMsg = 'Simulação: Dados prontos para envio!';
+            setTimeout(() => { this.successMsg = ''; this.closeModal(); }, 1500);
+        }
+    }
+}
+</script>
+
+<style>
+/* Remove os spinners dos campos number (Chrome, Safari, Edge, Opera) */
+input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button { 
+    -webkit-appearance: none;
+    margin: 0;
+}
+/* Remove os spinners dos campos number (Firefox) */
+input[type=number] {
+    -moz-appearance: textfield;
+}
+</style>
+@endsection

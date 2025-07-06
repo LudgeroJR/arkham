@@ -16,6 +16,17 @@ class PokedexController extends Controller
         return view('psoul.pokedex', ['pokemons_by_dex' => $pokemonsByDex]);
     }
 
+    public function adminIndex()
+    {
+        $pokemons = \App\Models\Pokedex::orderBy('dex')->get();
+        $types = \App\Models\Type::orderBy('name')->get();
+        $skills = \App\Models\Skill::orderBy('name')->get();
+        $abilities = \App\Models\Ability::orderBy('name')->get();
+        $items = \App\Models\Item::orderBy('name')->get();
+
+        return view('admin.pokedex', compact('pokemons', 'types', 'skills', 'abilities', 'items'));
+    }
+
     public function showJson($id)
     {
         $pokemon = Pokedex::with([
@@ -111,33 +122,5 @@ class PokedexController extends Controller
         ]);
     }
 
-    public function create()
-    {
-        // Busca todos os cargos para o select
-        $roles = Role::all();
-        return view('members.create', compact('roles'));
-    }
-
-    public function store(Request $request)
-    {
-        // Validação dos dados
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'whatsapp' => 'nullable|string|max:100',
-            'discord' => 'nullable|string|max:100',
-            'role_id' => 'required|exists:roles,id',
-        ]);
-
-        // Upload do avatar se enviado
-        if ($request->hasFile('avatar')) {
-            $avatarPath = $request->file('avatar')->store('avatars', 'public');
-            $validated['avatar'] = $avatarPath;
-        }
-
-        // Cria o membro
-        Member::create($validated);
-
-        return redirect()->route('members.index')->with('success', 'Membro cadastrado com sucesso!');
-    }
+    
 }

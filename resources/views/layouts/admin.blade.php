@@ -23,7 +23,7 @@
                     </svg>
                 </button>
                 <div x-show="open" class="ml-6 mt-2 flex flex-col gap-1" x-cloak>
-                    <a href="#" class="px-3 py-1 rounded text-green-100 hover:bg-green-400 hover:text-black transition">Pokédex</a>
+                    <a href="{{ route('admin.psoul.pokedex') }}" class="px-3 py-1 rounded text-green-100 hover:bg-green-400 hover:text-black transition">Pokédex</a>
                     <a href="#" class="px-3 py-1 rounded text-green-100 hover:bg-green-400 hover:text-black transition">Itens</a>
                     <a href="#" class="px-3 py-1 rounded text-green-100 hover:bg-green-400 hover:text-black transition">Quests</a>
                     <a href="#" class="px-3 py-1 rounded text-green-100 hover:bg-green-400 hover:text-black transition">Ranges</a>
