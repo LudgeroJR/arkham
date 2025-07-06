@@ -305,10 +305,64 @@ function pokedexCrud() {
         addLoot() { this.form.loot.push({ item_id: '', min: '', max: '' }); },
         removeLoot(idx) { this.form.loot.splice(idx, 1); },
         submitPokedex() {
-            // Integração será feita na próxima etapa!
-            this.successMsg = 'Simulação: Dados prontos para envio!';
-            setTimeout(() => { this.successMsg = ''; this.closeModal(); }, 1500);
-        }
+            this.errorMsg = '';
+            this.successMsg = '';
+
+            // Monta os dados do formulário
+            let data = {
+                dex: this.form.dex,
+                name: this.form.name,
+                description: this.form.description,
+                thumb: typeof this.form.thumb === 'string' ? this.form.thumb : '',
+                primary_type: this.form.primary_type,
+                secondary_type: this.form.secondary_type,
+                abilities: this.form.abilities,
+                moveset: this.form.moveset,
+                eggmoves: this.form.eggmoves,
+                movetutors: this.form.movetutors,
+                loot: this.form.loot.map(l => ({
+                    item_id: l.item_id,
+                    min: l.min,
+                    max: l.max === '' ? null : l.max
+                }))
+            };
+
+            fetch('{{ route('admin.psoul.pokedex.ajax.store') }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(async response => {
+                let d = await response.json();
+                if (!response.ok) throw new Error(d.message || 'Erro ao salvar');
+                return d;
+            })
+            .then(d => {
+                this.successMsg = d.message;
+
+                if (this.form.id) {
+                    // Se for edição, fecha o modal após salvar
+                    setTimeout(() => { this.successMsg = ''; this.closeModal(); location.reload(); }, 800);
+                } else {
+                    // Se for novo cadastro, limpa os campos e mantém o modal aberto para próximo cadastro
+                    this.resetForm();
+                    // Opcional: recarrega a tabela em tela para mostrar o novo cadastro
+                    // setTimeout(() => { this.successMsg = ''; location.reload(); }, 800);
+                    // Se preferir NÃO recarregar a tabela, remova o location.reload() acima.
+                }
+            })
+            .catch(e => {
+                // Se for erro de validação Laravel, tente extrair as mensagens
+                if (e && e.message && e.message.includes('The given data was invalid')) {
+                    this.errorMsg = 'Dados inválidos. Verifique os campos obrigatórios.';
+                } else {
+                    this.errorMsg = e.message || 'Erro ao cadastrar Pokémon.';
+                }
+            });
+        },
     }
 }
 </script>
@@ -323,6 +377,25 @@ input[type=number]::-webkit-outer-spin-button {
 /* Remove os spinners dos campos number (Firefox) */
 input[type=number] {
     -moz-appearance: textfield;
+}
+/* Estiliza a barra de rolagem do container principal/modal */
+.overflow-auto::-webkit-scrollbar {
+    width: 10px;
+    background: #0B2C21;
+    border-radius: 8px;
+}
+.overflow-auto::-webkit-scrollbar-thumb {
+    background: #22c55e;
+    border-radius: 8px;
+    border: 2px solid #0B2C21;
+}
+.overflow-auto::-webkit-scrollbar-thumb:hover {
+    background: #16a34a;
+}
+/* Firefox */
+.overflow-auto {
+    scrollbar-width: thin;
+    scrollbar-color: #22c55e #0B2C21;
 }
 </style>
 @endsection

@@ -9,6 +9,11 @@ class Movetutor extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'skill_id',
+        'pokedex_id'
+    ];
+
     public function pokemon()
     {
         return $this->belongsTo(Pokedex::class, 'pokedex_id');

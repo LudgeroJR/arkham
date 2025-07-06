@@ -10,6 +10,13 @@ class Loot extends Model
     use HasFactory;
     protected $table = 'loot';
 
+    protected $fillable = [
+        'item_id',
+        'amount_min',
+        'amount_max',
+        'pokedex_id'
+    ];
+
     public function pokemon()
     {
         return $this->belongsTo(Pokedex::class, 'pokedex_id');

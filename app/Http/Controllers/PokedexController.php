@@ -122,5 +122,114 @@ class PokedexController extends Controller
         ]);
     }
 
+    public function storeAjax(\Illuminate\Http\Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'dex' => 'required|integer', // removido unique
+                'name' => 'required|string|max:100',
+                'description' => 'nullable|string',
+                'thumb' => 'nullable|string|max:100', // nome do arquivo
+                'primary_type' => 'required|exists:types,id',
+                'secondary_type' => 'nullable|exists:types,id',
+
+                // Abilities
+                'abilities' => 'array',
+                'abilities.*.id' => 'required|exists:abilities,id',
+                'abilities.*.hidden' => 'boolean',
+
+                // Moveset
+                'moveset' => 'array',
+                'moveset.*.position' => 'required|integer',
+                'moveset.*.skill_id' => 'required|exists:skills,id',
+                'moveset.*.level' => 'required|integer|min:1|max:99',
+
+                // Eggmoves
+                'eggmoves' => 'array',
+                'eggmoves.*.skill_id' => 'required|exists:skills,id',
+
+                // Movetutors
+                'movetutors' => 'array',
+                'movetutors.*.skill_id' => 'required|exists:skills,id',
+
+                // Loot
+                'loot' => 'array',
+                'loot.*.item_id' => 'required|exists:items,id',
+                'loot.*.min' => 'required|integer|min:1|max:99',
+                'loot.*.max' => 'nullable|integer|min:1|max:99', // agora nullable
+            ]);
+
+            // Cria o registro principal
+            $poke = new \App\Models\Pokedex();
+            $poke->dex = $validated['dex'];
+            $poke->name = $validated['name'];
+            $poke->description = $validated['description'] ?? null;
+            $poke->thumb = $validated['thumb'] ?? null;
+            $poke->primary_type_id = $validated['primary_type'];
+            $poke->secondary_type_id = $validated['secondary_type'] ?? null;
+            $poke->save();
+
+            // Abilities (pivot ability_pokedex)
+            if (!empty($validated['abilities'])) {
+                foreach ($validated['abilities'] as $ab) {
+                    $poke->abilities()->attach($ab['id'], [
+                        'hidden' => !empty($ab['hidden']),
+                    ]);
+                }
+            }
+
+            // Moveset
+            if (!empty($validated['moveset'])) {
+                foreach ($validated['moveset'] as $move) {
+                    $poke->moveset()->create([
+                        'position' => $move['position'],
+                        'skill_id' => $move['skill_id'],
+                        'level' => $move['level'],
+                    ]);
+                }
+            }
+
+            // Eggmoves
+            if (!empty($validated['eggmoves'])) {
+                foreach ($validated['eggmoves'] as $egg) {
+                    $poke->eggmoves()->create([
+                        'skill_id' => $egg['skill_id'],
+                    ]);
+                }
+            }
+
+            // Movetutors
+            if (!empty($validated['movetutors'])) {
+                foreach ($validated['movetutors'] as $mt) {
+                    $poke->movetutors()->create([
+                        'skill_id' => $mt['skill_id'],
+                    ]);
+                }
+            }
+
+            // Loot
+            if (!empty($validated['loot'])) {
+                foreach ($validated['loot'] as $loot) {
+                    $poke->loot()->create([
+                        'item_id' => $loot['item_id'],
+                        'amount_min' => $loot['min'],
+                        'amount_max' => isset($loot['max']) && $loot['max'] !== '' ? $loot['max'] : null,
+                    ]);
+                }
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Pokémon cadastrado com sucesso!',
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+                'errors' => $e->errors(),
+            ], 422);
+        }
+    }
+
     
 }

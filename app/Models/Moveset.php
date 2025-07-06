@@ -9,6 +9,13 @@ class Moveset extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'position',
+        'skill_id',
+        'level',
+        'pokedex_id'
+    ];
+
     public function pokemon()
     {
         // Certifique-se que a foreign key está correta (pokedex_id)
