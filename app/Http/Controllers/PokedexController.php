@@ -231,5 +231,158 @@ class PokedexController extends Controller
         }
     }
 
+    public function showAjax(\App\Models\Pokedex $pokedex)
+    {
+        $pokedex->load([
+            'abilities',
+            'moveset',
+            'eggmoves',
+            'movetutors',
+            'loot'
+        ]);
+        return response()->json([
+            'success' => true,
+            'pokemon' => [
+                'id' => $pokedex->id,
+                'dex' => $pokedex->dex,
+                'name' => $pokedex->name,
+                'description' => $pokedex->description,
+                'thumb' => $pokedex->thumb,
+                'primary_type' => $pokedex->primary_type_id,
+                'secondary_type' => $pokedex->secondary_type_id,
+                'abilities' => $pokedex->abilities->map(function($ab) {
+                    return ['id' => $ab->id, 'hidden' => (bool)$ab->pivot->hidden];
+                })->toArray(),
+                'moveset' => $pokedex->moveset->map(function($mv) {
+                    return [
+                        'position' => $mv->position,
+                        'skill_id' => $mv->skill_id,
+                        'level' => $mv->level
+                    ];
+                })->toArray(),
+                'eggmoves' => $pokedex->eggmoves->map(function($em) {
+                    return ['skill_id' => $em->skill_id];
+                })->toArray(),
+                'movetutors' => $pokedex->movetutors->map(function($mt) {
+                    return ['skill_id' => $mt->skill_id];
+                })->toArray(),
+                'loot' => $pokedex->loot->map(function($l) {
+                    return [
+                        'item_id' => $l->item_id,
+                        'min' => $l->amount_min,
+                        'max' => $l->amount_max
+                    ];
+                })->toArray(),
+            ]
+        ]);
+    }
+
+    public function updateAjax(\Illuminate\Http\Request $request, \App\Models\Pokedex $pokedex)
+    {
+        try{
+            $validated = $request->validate([
+                'dex' => 'required|integer',
+                'name' => 'required|string|max:100',
+                'description' => 'nullable|string',
+                'thumb' => 'nullable|string|max:100',
+                'primary_type' => 'required|exists:types,id',
+                'secondary_type' => 'nullable|exists:types,id',
+
+                'abilities' => 'array',
+                'abilities.*.id' => 'required|exists:abilities,id',
+                'abilities.*.hidden' => 'boolean',
+
+                'moveset' => 'array',
+                'moveset.*.position' => 'required|integer',
+                'moveset.*.skill_id' => 'required|exists:skills,id',
+                'moveset.*.level' => 'required|integer|min:1|max:99',
+
+                'eggmoves' => 'array',
+                'eggmoves.*.skill_id' => 'required|exists:skills,id',
+
+                'movetutors' => 'array',
+                'movetutors.*.skill_id' => 'required|exists:skills,id',
+
+                'loot' => 'array',
+                'loot.*.item_id' => 'required|exists:items,id',
+                'loot.*.min' => 'required|integer|min:1|max:99',
+                'loot.*.max' => 'nullable|integer|min:1|max:99',
+            ]);
+
+            // Atualiza dados principais
+            $pokedex->dex = $validated['dex'];
+            $pokedex->name = $validated['name'];
+            $pokedex->description = $validated['description'] ?? null;
+            $pokedex->thumb = $validated['thumb'] ?? null;
+            $pokedex->primary_type_id = $validated['primary_type'];
+            $pokedex->secondary_type_id = $validated['secondary_type'] ?? null;
+            $pokedex->save();
+
+            // Abilities (pivot)
+            $pokedex->abilities()->detach();
+            if (!empty($validated['abilities'])) {
+                foreach ($validated['abilities'] as $ab) {
+                    $pokedex->abilities()->attach($ab['id'], [
+                        'hidden' => !empty($ab['hidden']),
+                    ]);
+                }
+            }
+
+            // Moveset
+            $pokedex->moveset()->delete();
+            if (!empty($validated['moveset'])) {
+                foreach ($validated['moveset'] as $move) {
+                    $pokedex->moveset()->create([
+                        'position' => $move['position'],
+                        'skill_id' => $move['skill_id'],
+                        'level' => $move['level'],
+                    ]);
+                }
+            }
+
+            // Eggmoves
+            $pokedex->eggmoves()->delete();
+            if (!empty($validated['eggmoves'])) {
+                foreach ($validated['eggmoves'] as $egg) {
+                    $pokedex->eggmoves()->create([
+                        'skill_id' => $egg['skill_id'],
+                    ]);
+                }
+            }
+
+            // Movetutors
+            $pokedex->movetutors()->delete();
+            if (!empty($validated['movetutors'])) {
+                foreach ($validated['movetutors'] as $mt) {
+                    $pokedex->movetutors()->create([
+                        'skill_id' => $mt['skill_id'],
+                    ]);
+                }
+            }
+
+            // Loot
+            $pokedex->loot()->delete();
+            if (!empty($validated['loot'])) {
+                foreach ($validated['loot'] as $loot) {
+                    $pokedex->loot()->create([
+                        'item_id' => $loot['item_id'],
+                        'amount_min' => $loot['min'],
+                        'amount_max' => $loot['max'],
+                    ]);
+                }
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Pokémon atualizado com sucesso!',
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro de validação',
+                'errors' => $e->errors(),
+            ], 422);
+        }
+    } 
     
 }

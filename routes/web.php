@@ -29,6 +29,8 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::get('/members/ajax/{member}', [\App\Http\Controllers\MemberController::class, 'showAjax'])->name('members.ajax.show');
     Route::get('/psoul/pokedex', [\App\Http\Controllers\PokedexController::class, 'adminIndex'])->name('psoul.pokedex');
     Route::post('/psoul/pokedex/ajax', [\App\Http\Controllers\PokedexController::class, 'storeAjax'])->name('psoul.pokedex.ajax.store');
+    Route::post('/psoul/pokedex/ajax/{pokedex}', [\App\Http\Controllers\PokedexController::class, 'updateAjax'])->name('psoul.pokedex.ajax.update');
+    Route::get('/psoul/pokedex/ajax/{pokedex}', [\App\Http\Controllers\PokedexController::class, 'showAjax'])->name('psoul.pokedex.ajax.show');
     // Outras rotas do admin...
 });
 

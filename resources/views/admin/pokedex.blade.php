@@ -304,11 +304,43 @@ function pokedexCrud() {
         removeMovetutor(idx) { this.form.movetutors.splice(idx, 1); },
         addLoot() { this.form.loot.push({ item_id: '', min: '', max: '' }); },
         removeLoot(idx) { this.form.loot.splice(idx, 1); },
+        editPokedex(id) {
+            this.resetForm();
+            this.errorMsg = '';
+            this.successMsg = '';
+            fetch(`/admin/psoul/pokedex/ajax/${id}`)
+                .then(async response => {
+                    if (response.status === 401 || response.status === 419 || response.status === 302) {
+                        throw new Error('Sessão expirada. Faça login novamente.');
+                    }
+                    let d = await response.json();
+                    if (!d.success) throw new Error(d.message || 'Erro ao buscar Pokémon');
+                    return d.pokemon;
+                })
+                .then(pokemon => {
+                    // Preenche o form com os dados recebidos
+                    this.form.id = pokemon.id;
+                    this.form.dex = pokemon.dex;
+                    this.form.name = pokemon.name;
+                    this.form.description = pokemon.description || '';
+                    this.form.thumb = typeof pokemon.thumb === 'string' ? pokemon.thumb : '';
+                    this.form.primary_type = pokemon.primary_type || '';
+                    this.form.secondary_type = pokemon.secondary_type || '';
+                    this.form.abilities = Array.isArray(pokemon.abilities) ? pokemon.abilities : [];
+                    this.form.moveset = Array.isArray(pokemon.moveset) ? pokemon.moveset : [];
+                    this.form.eggmoves = Array.isArray(pokemon.eggmoves) ? pokemon.eggmoves : [];
+                    this.form.movetutors = Array.isArray(pokemon.movetutors) ? pokemon.movetutors : [];
+                    this.form.loot = Array.isArray(pokemon.loot) ? pokemon.loot : [];
+                    this.showModal = true;
+                })
+                .catch(e => {
+                    this.errorMsg = e.message || 'Erro ao carregar dados para edição.';
+                });
+        },
         submitPokedex() {
             this.errorMsg = '';
             this.successMsg = '';
 
-            // Monta os dados do formulário
             let data = {
                 dex: this.form.dex,
                 name: this.form.name,
@@ -327,7 +359,12 @@ function pokedexCrud() {
                 }))
             };
 
-            fetch('{{ route('admin.psoul.pokedex.ajax.store') }}', {
+            const isEdit = !!this.form.id;
+            const url = isEdit
+                ? `{{ url('admin/psoul/pokedex/ajax') }}/${this.form.id}`
+                : `{{ route('admin.psoul.pokedex.ajax.store') }}`;
+
+            fetch(url, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -343,7 +380,7 @@ function pokedexCrud() {
             .then(d => {
                 this.successMsg = d.message;
 
-                if (this.form.id) {
+                if (isEdit) {
                     // Se for edição, fecha o modal após salvar
                     setTimeout(() => { this.successMsg = ''; this.closeModal(); location.reload(); }, 800);
                 } else {
