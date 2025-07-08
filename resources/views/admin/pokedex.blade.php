@@ -400,6 +400,29 @@ function pokedexCrud() {
                 }
             });
         },
+        deletePokedex(id) {
+            if (!confirm('Tem certeza que deseja excluir este Pokémon? Esta ação não pode ser desfeita!')) return;
+            fetch(`/admin/psoul/pokedex/ajax/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(async response => {
+                let d = await response.json();
+                if (!response.ok) throw new Error(d.message || 'Erro ao excluir');
+                return d;
+            })
+            .then(d => {
+                alert(d.message);
+                // Remove da tabela visualmente (opcional) ou recarrega a página
+                location.reload();
+            })
+            .catch(e => {
+                alert(e.message || 'Erro ao excluir Pokémon.');
+            });
+        },
     }
 }
 </script>

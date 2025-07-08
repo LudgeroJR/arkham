@@ -384,5 +384,31 @@ class PokedexController extends Controller
             ], 422);
         }
     } 
+
+    public function destroyAjax(\App\Models\Pokedex $pokedex)
+    {
+        try {
+            // Exclui as relações (ordem não importa pois foreign keys não são CASCADE)
+            $pokedex->moveset()->delete();
+            $pokedex->eggmoves()->delete();
+            $pokedex->movetutors()->delete();
+            $pokedex->loot()->delete();
+            $pokedex->abilities()->detach(); // Tabela pivô ability_pokedex
+
+            // Exclui o próprio pokémon
+            $pokedex->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Pokémon excluído com sucesso!'
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Erro ao excluir Pokémon: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro ao excluir Pokémon: ' . $e->getMessage()
+            ], 500);
+        }
+    }
     
 }
