@@ -32,6 +32,10 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::post('/psoul/pokedex/ajax/{pokedex}', [\App\Http\Controllers\PokedexController::class, 'updateAjax'])->name('psoul.pokedex.ajax.update');
     Route::get('/psoul/pokedex/ajax/{pokedex}', [\App\Http\Controllers\PokedexController::class, 'showAjax'])->name('psoul.pokedex.ajax.show');
     Route::delete('/psoul/pokedex/ajax/{pokedex}', [\App\Http\Controllers\PokedexController::class, 'destroyAjax'])->name('psoul.pokedex.ajax.destroy');
+    Route::get('/psoul/items', [\App\Http\Controllers\ItemController::class, 'adminIndex'])->name('psoul.items');
+    Route::post('/psoul/items', [\App\Http\Controllers\ItemController::class, 'store'])->name('psoul.items.store');
+    Route::put('/psoul/items/{item}', [\App\Http\Controllers\ItemController::class, 'update'])->name('psoul.items.update');
+    Route::get('/psoul/items/{item}/compositions', [\App\Http\Controllers\ItemController::class, 'compositions']);
     // Outras rotas do admin...
 });
 

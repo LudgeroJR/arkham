@@ -9,12 +9,24 @@ class Item extends Model
 {
     use HasFactory;
     protected $table = 'items';
+    protected $fillable = [
+        'name',
+        'price',
+    ];
+    protected $casts = [
+        'price' => 'double',
+    ];
 
     // Materiais usados para craftar ESTE item
     public function materials()
     {
         return $this->belongsToMany(Item::class, 'item_compositions', 'item_id', 'material_id')
             ->withPivot('amount');
+    }
+
+    public function materialCompositions()
+    {
+        return $this->hasMany(\App\Models\ItemComposition::class, 'item_id');
     }
 
     // Itens que ESTE item serve de material (usado para)

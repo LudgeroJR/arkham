@@ -60,4 +60,82 @@ class ItemController extends Controller
             ])->values(),
         ]);
     }
+
+    public function adminIndex()
+    {
+        $items = \App\Models\Item::orderBy('name')->get();
+        return view('admin.items', compact('items'));
+    }
+
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:100',
+            'price' => 'required|numeric|min:0',
+            'materials' => 'array',
+            'materials.*.material_id' => 'required_with:materials|exists:items,id',
+            'materials.*.amount' => 'required_with:materials|integer|min:1',
+        ]);
+
+        // Cria o item
+        $item = \App\Models\Item::create([
+            'name' => $validated['name'],
+            'price' => $validated['price'],
+        ]);
+
+        // Se houver materiais, salva na item_compositions
+        if (!empty($validated['materials'])) {
+            foreach ($validated['materials'] as $mat) {
+                \App\Models\ItemComposition::create([
+                    'item_id' => $item->id,
+                    'material_id' => $mat['material_id'],
+                    'amount' => $mat['amount'],
+                ]);
+            }
+        }
+
+        // Retorna o item criado já com materiais (para atualizar a lista sem recarregar)
+        $item->materials = $item->materials()->withPivot('amount')->get();
+        return response()->json(['success' => true, 'item' => $item]);
+    }
+
+    public function update(Request $request, \App\Models\Item $item)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:100',
+            'price' => 'required|numeric|min:0',
+            'materials' => 'array',
+            'materials.*.material_id' => 'required_with:materials|exists:items,id',
+            'materials.*.amount' => 'required_with:materials|integer|min:1',
+        ]);
+
+        // Atualiza o item
+        $item->update([
+            'name' => $validated['name'],
+            'price' => $validated['price'],
+        ]);
+
+        // Remove composições antigas
+        $item->materialCompositions()->delete();
+
+        // Adiciona composições novas, se houver
+        if (!empty($validated['materials'])) {
+            foreach ($validated['materials'] as $mat) {
+                \App\Models\ItemComposition::create([
+                    'item_id' => $item->id,
+                    'material_id' => $mat['material_id'],
+                    'amount' => $mat['amount'],
+                ]);
+            }
+        }
+
+        // Retorna o item atualizado (com materiais)
+        $item->materials = $item->materials()->withPivot('amount')->get();
+        return response()->json(['success' => true, 'item' => $item]);
+    }
+    
+    public function compositions(\App\Models\Item $item)
+    {
+        return $item->materialCompositions()->get(['material_id', 'amount']);
+    }
 }

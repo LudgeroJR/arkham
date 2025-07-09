@@ -9,6 +9,11 @@ class ItemComposition extends Model
 {
     use HasFactory;
     protected $table = 'item_compositions';
+    protected $fillable = [
+        'item_id',
+        'material_id',
+        'amount',
+    ];
 
     public function item()
     {
