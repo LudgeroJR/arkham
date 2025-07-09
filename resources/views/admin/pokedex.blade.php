@@ -107,7 +107,9 @@
                         </div>
                         <template x-for="(ability, idx) in form.abilities" :key="idx">
                             <div class="flex items-center gap-2 mb-1">
-                                <select x-model="ability.id" class="rounded border border-green-400 px-2 py-1 bg-gray-900 text-green-200 flex-1">
+                                <select x-model="ability.id"
+                                        class="rounded border border-green-400 px-2 py-1 bg-gray-900 text-green-200 flex-1 tom-autocomplete"
+                                        x-init="$nextTick(() => new TomSelect($el, {create: false, maxOptions: 100}))">
                                     <option value="">Selecione</option>
                                     @foreach($abilities as $ab)
                                         <option value="{{ $ab->id }}">{{ $ab->name }}</option>
@@ -135,7 +137,9 @@
                         <template x-for="(move, idx) in form.moveset" :key="idx">
                             <div class="flex items-center gap-2 mb-1">
                                 <input type="number" min="1" max="99" x-model="move.position" readonly class="w-12 rounded border border-green-400 px-2 py-1 bg-gray-900 text-green-200 text-center" placeholder="Pos">
-                                <select x-model="move.skill_id" class="flex-1 rounded border border-green-400 px-2 py-1 bg-gray-900 text-green-200">
+                                <select x-model="move.skill_id" 
+                                        class="flex-1 rounded border border-green-400 px-2 py-1 bg-gray-900 text-green-200 tom-autocomplete"
+                                        x-init="$nextTick(() => new TomSelect($el, {create: false, maxOptions: 100, maxItems: 1}))">
                                     <option value="">Skill</option>
                                     @foreach($skills as $sk)
                                         <option value="{{ $sk->id }}">{{ $sk->name }}</option>
@@ -161,7 +165,9 @@
                         </div>
                         <template x-for="(eggmove, idx) in form.eggmoves" :key="idx">
                             <div class="flex items-center gap-2 mb-1">
-                                <select x-model="eggmove.skill_id" class="flex-1 rounded border border-green-400 px-2 py-1 bg-gray-900 text-green-200">
+                                <select x-model="eggmove.skill_id"
+                                        class="flex-1 rounded border border-green-400 px-2 py-1 bg-gray-900 text-green-200 tom-autocomplete"
+                                        x-init="$nextTick(() => new TomSelect($el, {create: false, maxOptions: 100}))">
                                     <option value="">Skill</option>
                                     @foreach($skills as $sk)
                                         <option value="{{ $sk->id }}">{{ $sk->name }}</option>
@@ -183,7 +189,9 @@
                         </div>
                         <template x-for="(movetutor, idx) in form.movetutors" :key="idx">
                             <div class="flex items-center gap-2 mb-1">
-                                <select x-model="movetutor.skill_id" class="flex-1 rounded border border-green-400 px-2 py-1 bg-gray-900 text-green-200">
+                                <select x-model="movetutor.skill_id" 
+                                        class="flex-1 rounded border border-green-400 px-2 py-1 bg-gray-900 text-green-200 tom-autocomplete"
+                                        x-init="$nextTick(() => new TomSelect($el, {create: false, maxOptions: 100}))">
                                     <option value="">Skill</option>
                                     @foreach($skills as $sk)
                                         <option value="{{ $sk->id }}">{{ $sk->name }}</option>
@@ -207,7 +215,9 @@
                         </div>
                         <template x-for="(loot, idx) in form.loot" :key="idx">
                             <div class="flex items-center gap-2 mb-1">
-                                <select x-model="loot.item_id" class="flex-1 rounded border border-green-400 px-2 py-1 bg-gray-900 text-green-200">
+                                <select x-model="loot.item_id"
+                                        class="flex-1 rounded border border-green-400 px-2 py-1 bg-gray-900 text-green-200 tom-autocomplete"
+                                        x-init="$nextTick(() => new TomSelect($el, {create: false, maxOptions: 100}))">
                                     <option value="">Item</option>
                                     @foreach($items as $item)
                                         <option value="{{ $item->id }}">{{ $item->name }}</option>
@@ -240,8 +250,12 @@
 
 <!-- Material Icons CDN -->
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<!-- Tom Select JS -->
+<link href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.default.min.css" rel="stylesheet">
 <!-- Alpine.js CDN -->
 <script src="//unpkg.com/alpinejs" defer></script>
+<!-- Tom Select JS -->
+<script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
 <script>
 function pokedexCrud() {
     return {
@@ -456,6 +470,18 @@ input[type=number] {
 .overflow-auto {
     scrollbar-width: thin;
     scrollbar-color: #22c55e #0B2C21;
+}
+/* Tom Select custom para tema escuro */
+.ts-dropdown, .ts-control, .ts-dropdown .option, .ts-dropdown .active, .ts-dropdown .selected {
+    background: #161b22 !important;
+    color: #a3e635 !important;
+}
+.ts-dropdown .option:hover, .ts-dropdown .active {
+    background: #22c55e !important;
+    color: #000 !important;
+}
+.ts-control {
+    border-color: #22c55e !important;
 }
 </style>
 @endsection
