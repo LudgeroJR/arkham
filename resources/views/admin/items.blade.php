@@ -66,7 +66,9 @@
                         </div>
                         <template x-for="(mat, idx) in form.materials" :key="idx">
                             <div class="flex items-center gap-2 mb-1">
-                                <select x-model="mat.material_id" class="rounded border border-green-400 px-2 py-1 bg-gray-900 text-green-200 flex-1">
+                                <select x-model="mat.material_id"
+                                        class="rounded border border-green-400 px-2 py-1 bg-gray-900 text-green-200 flex-1 tom-autocomplete"
+                                        x-init="$nextTick(() => new TomSelect($el, {create: false, maxOptions: 100}))">
                                     <option value="">Selecione o material</option>
                                     @foreach($items as $m)
                                         <option value="{{ $m->id }}">{{ $m->name }}</option>
@@ -98,8 +100,10 @@
 
 <!-- Material Icons CDN -->
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.default.min.css" rel="stylesheet">
 <!-- Alpine.js CDN -->
 <script src="//unpkg.com/alpinejs" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
 <script>
 function itemCrud() {
     return {
@@ -205,9 +209,33 @@ function itemCrud() {
                 }))
             };
             this.showModal = true;
+        },
+
+        async deleteItem(id) {
+            if (!confirm('Tem certeza que deseja excluir este item? Esta ação não pode ser desfeita!')) return;
+            this.errorMsg = '';
+            this.successMsg = '';
+            try {
+                const resp = await fetch(`/admin/psoul/items/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
+                    }
+                });
+                const data = await resp.json();
+                if (data.success) {
+                    this.successMsg = data.message;
+                    // Remove o item da lista local para sumir da tela sem recarregar
+                    this.items = this.items.filter(i => i.id !== id);
+                } else {
+                    this.errorMsg = data.message || 'Erro ao excluir item.';
+                }
+            } catch (e) {
+                this.errorMsg = 'Erro de conexão ou servidor.';
+            }
         }
         
-        // As funções submitItem, editItem, deleteItem serão implementadas na próxima etapa!
     }
 }
 </script>
@@ -240,6 +268,18 @@ input[type=number] {
 .overflow-auto {
     scrollbar-width: thin;
     scrollbar-color: #22c55e #0B2C21;
+}
+/* Tom Select custom para tema escuro */
+.ts-dropdown, .ts-control, .ts-dropdown .option, .ts-dropdown .active, .ts-dropdown .selected {
+    background: #161b22 !important;
+    color: #a3e635 !important;
+}
+.ts-dropdown .option:hover, .ts-dropdown .active {
+    background: #22c55e !important;
+    color: #000 !important;
+}
+.ts-control {
+    border-color: #22c55e !important;
 }
 </style>
 @endsection

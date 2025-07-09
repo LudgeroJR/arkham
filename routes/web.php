@@ -36,6 +36,7 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::post('/psoul/items', [\App\Http\Controllers\ItemController::class, 'store'])->name('psoul.items.store');
     Route::put('/psoul/items/{item}', [\App\Http\Controllers\ItemController::class, 'update'])->name('psoul.items.update');
     Route::get('/psoul/items/{item}/compositions', [\App\Http\Controllers\ItemController::class, 'compositions']);
+    Route::delete('/psoul/items/{item}', [\App\Http\Controllers\ItemController::class, 'destroy'])->name('psoul.items.destroy');
     // Outras rotas do admin...
 });
 

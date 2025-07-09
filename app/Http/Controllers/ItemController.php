@@ -138,4 +138,18 @@ class ItemController extends Controller
     {
         return $item->materialCompositions()->get(['material_id', 'amount']);
     }
+    
+    public function destroy(Item $item)
+    {
+        // Remove relações (composições) antes de excluir o item principal
+        $item->materialCompositions()->delete();
+
+        // Dica: Se o item for usado como material em outros, remova também as relações inversas
+        \App\Models\ItemComposition::where('material_id', $item->id)->delete();
+
+        // Exclui o item principal
+        $item->delete();
+
+        return response()->json(['success' => true, 'message' => 'Item excluído com sucesso!']);
+    }
 }

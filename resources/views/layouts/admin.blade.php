@@ -6,9 +6,9 @@
     <aside class="w-64 bg-black/90 border-r-4 border-green-400 flex flex-col py-8 px-4 h-full">
         <h2 class="text-2xl font-bold text-green-400 mb-8 text-center tracking-wider">Cadastros</h2>
         <nav class="flex flex-col gap-2">
-            {{-- <a href="#" class="flex items-center px-4 py-2 rounded text-green-200 hover:bg-green-400 hover:text-black font-semibold transition">
+            <a href="#" class="flex items-center px-4 py-2 rounded text-green-200 hover:bg-green-400 hover:text-black font-semibold transition">
                 <span class="material-icons mr-2">person</span> Usuários
-            </a> --}}
+            </a>
             <a href="{{ route('admin.members') }}" class="flex items-center px-4 py-2 rounded text-green-200 hover:bg-green-400 hover:text-black font-semibold transition">
                 <span class="material-icons mr-2">group</span> Membros
             </a>
