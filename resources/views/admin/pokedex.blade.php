@@ -2,9 +2,18 @@
 
 @section('admin-content')
 <div x-data="pokedexCrud()" class="w-full max-w-7xl mx-auto h-full overflow-auto">
+    
     <div class="flex justify-between items-center mb-6">
         <h2 class="text-3xl font-extrabold title text-green-400 tracking-wider">Gerenciar Pokédex</h2>
-        <button @click="openModal()" class="bg-green-400 hover:bg-green-600 text-black font-bold px-6 py-2 rounded shadow transition">Adicionar</button>
+        <div class="flex gap-2 items-center">
+            <input
+                type="text"
+                placeholder="Buscar Pokémon por nome, dex ou descrição..."
+                class="rounded border border-green-400 px-3 py-2 bg-gray-900 text-green-200 w-72 focus:outline-none focus:ring-2 focus:ring-green-400"
+                x-model="search"
+            >
+            <button @click="openModal()" class="bg-green-400 hover:bg-green-600 text-black font-bold px-6 py-2 rounded shadow transition">Adicionar</button>
+        </div>
     </div>
     <div class="overflow-x-auto rounded-xl shadow">
         <table class="min-w-full bg-black/80 border border-green-400 text-green-200">
@@ -18,35 +27,34 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach($pokemons as $poke)
-                    <tr class="border-t border-green-700 hover:bg-green-950/50 transition" data-pokedex-id="{{ $poke->id }}">
-                        <td class="py-3 px-4">{{ $poke->dex }}</td>
-                        <td class="py-3 px-4">{{ $poke->name }}</td>
-                        <td class="py-3 px-4">{{ $poke->description ? Str::limit($poke->description, 30) : '-' }}</td>
+                <template x-for="poke in filteredPokemons()" :key="poke.id">
+                    <tr class="border-t border-green-700 hover:bg-green-950/50 transition" :data-pokedex-id="poke.id">
+                        <td class="py-3 px-4" x-text="poke.dex"></td>
+                        <td class="py-3 px-4" x-text="poke.name"></td>
+                        <td class="py-3 px-4" x-text="poke.description ? poke.description.substring(0, 30) : '-'"></td>
                         <td class="py-3 px-4">
-                            @if($poke->thumb)
-                                <img src="{{ asset('images/jogos/psoul/pokemonsthumb/'.$poke->thumb) }}" alt="Thumb" class="w-10 h-10 object-contain border-2 border-green-400 rounded bg-black">
-                            @else
+                            <template x-if="poke.thumb">
+                                <img :src="'{{ asset('images/jogos/psoul/pokemonsthumb/') }}/' + poke.thumb" alt="Thumb" class="w-10 h-10 object-contain border-2 border-green-400 rounded bg-black">
+                            </template>
+                            <template x-if="!poke.thumb">
                                 <span class="text-green-200">-</span>
-                            @endif
+                            </template>
                         </td>
                         <td class="py-3 px-4 flex justify-center gap-2">
                             <button class="p-1 rounded hover:bg-green-400 hover:text-black transition"
-                                @click="editPokedex({{ $poke->id }})" title="Editar">
+                                @click="editPokedex(poke.id)" title="Editar">
                                 <span class="material-icons">edit</span>
                             </button>
                             <button class="p-1 rounded hover:bg-red-500 hover:text-white transition"
-                                @click="deletePokedex({{ $poke->id }})" title="Excluir">
+                                @click="deletePokedex(poke.id)" title="Excluir">
                                 <span class="material-icons">delete</span>
                             </button>
                         </td>
                     </tr>
-                @endforeach
-                @if($pokemons->isEmpty())
-                    <tr>
-                        <td colspan="5" class="py-6 text-center text-green-400">Nenhum Pokémon cadastrado ainda.</td>
-                    </tr>
-                @endif
+                </template>
+                <tr x-show="filteredPokemons().length === 0">
+                    <td colspan="5" class="py-6 text-center text-green-400">Nenhum Pokémon encontrado.</td>
+                </tr>
             </tbody>
         </table>
     </div>
@@ -259,6 +267,7 @@
 <script>
 function pokedexCrud() {
     return {
+        pokemons: @json($pokemons),
         showModal: false,
         form: {
             id: null,
@@ -277,6 +286,16 @@ function pokedexCrud() {
         },
         errorMsg: '',
         successMsg: '',
+        search: '',
+        filteredPokemons() {
+            if (!this.search) return this.pokemons;
+            let term = this.search.toLowerCase();
+            return this.pokemons.filter(poke =>
+                String(poke.dex).includes(term) ||
+                (poke.name && poke.name.toLowerCase().includes(term)) ||
+                (poke.description && poke.description.toLowerCase().includes(term))
+            );
+        },
         openModal() {
             this.resetForm();
             this.showModal = true;

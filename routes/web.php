@@ -22,6 +22,13 @@ Route::prefix('psoul')->name('psoul.')->group(function () {
 // Rotas do painel admin (protegidas por auth)
 Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', fn() => view('admin.dashboard'))->name('dashboard');
+    Route::get('/profile', [\App\Http\Controllers\ProfileController::class, 'show'])->name('profile.show');
+    Route::post('/profile/password', [\App\Http\Controllers\ProfileController::class, 'updatePassword'])->name('profile.password');
+    Route::get('/users', [\App\Http\Controllers\UserController::class, 'index'])->name('users.index');
+    Route::post('/users', [\App\Http\Controllers\UserController::class, 'store'])->name('users.store');
+    Route::get('/users/{user}/edit', [\App\Http\Controllers\UserController::class, 'edit'])->name('users.edit');
+    Route::post('/users/{user}', [\App\Http\Controllers\UserController::class, 'update'])->name('users.update');
+    Route::delete('/users/{user}', [\App\Http\Controllers\UserController::class, 'destroy'])->name('users.destroy');
     Route::get('/members', [\App\Http\Controllers\MemberController::class, 'adminIndex'])->name('members');
     Route::post('/members/ajax', [\App\Http\Controllers\MemberController::class, 'storeAjax'])->name('members.ajax.store');
     Route::post('/members/ajax/{member}', [\App\Http\Controllers\MemberController::class, 'updateAjax'])->name('members.ajax.update');
