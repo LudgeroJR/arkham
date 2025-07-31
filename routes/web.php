@@ -44,6 +44,11 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::put('/psoul/items/{item}', [\App\Http\Controllers\ItemController::class, 'update'])->name('psoul.items.update');
     Route::get('/psoul/items/{item}/compositions', [\App\Http\Controllers\ItemController::class, 'compositions']);
     Route::delete('/psoul/items/{item}', [\App\Http\Controllers\ItemController::class, 'destroy'])->name('psoul.items.destroy');
+    Route::get('/psoul/quests', [\App\Http\Controllers\QuestController::class, 'adminIndex'])->name('psoul.quests');
+    Route::post('/psoul/quests', [\App\Http\Controllers\QuestController::class, 'store'])->name('psoul.quests.store');
+    Route::post('/psoul/quests/{quest}', [\App\Http\Controllers\QuestController::class, 'update'])->name('psoul.quests.update');
+    Route::get('/psoul/quests/ajax/{quest}', [\App\Http\Controllers\QuestController::class, 'showAjax'])->name('psoul.quests.ajax.show');
+    Route::delete('/psoul/quests/{quest}', [\App\Http\Controllers\QuestController::class, 'destroy'])->name('psoul.quests.destroy');
     // Outras rotas do admin...
 });
 
