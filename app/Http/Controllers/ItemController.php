@@ -64,7 +64,7 @@ class ItemController extends Controller
     public function adminIndex()
     {
         $items = \App\Models\Item::orderBy('name')->get();
-        return view('admin.items', compact('items'));
+        return view('admin.psoul.items', compact('items'));
     }
 
     public function store(Request $request)

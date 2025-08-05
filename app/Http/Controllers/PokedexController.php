@@ -24,7 +24,7 @@ class PokedexController extends Controller
         $abilities = \App\Models\Ability::orderBy('name')->get();
         $items = \App\Models\Item::orderBy('name')->get();
 
-        return view('admin.pokedex', compact('pokemons', 'types', 'skills', 'abilities', 'items'));
+        return view('admin.psoul.pokedex', compact('pokemons', 'types', 'skills', 'abilities', 'items'));
     }
 
     public function showJson($id)

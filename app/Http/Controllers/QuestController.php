@@ -17,7 +17,7 @@ class QuestController extends Controller
     {
         $quests = \App\Models\Quest::with('rewards')->orderBy('name')->get();
         $items = \App\Models\Item::orderBy('name')->get();
-        return view('admin.quests', compact('quests', 'items'));
+        return view('admin.psoul.quests', compact('quests', 'items'));
     }
 
     public function store(Request $request)
