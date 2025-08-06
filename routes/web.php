@@ -53,6 +53,8 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::post('/psoul/types', [\App\Http\Controllers\TypeController::class, 'store'])->name('psoul.types.store');
     Route::put('/psoul/types/{type}', [\App\Http\Controllers\TypeController::class, 'update'])->name('psoul.types.update');
     Route::delete('/psoul/types/{type}', [\App\Http\Controllers\TypeController::class, 'destroy'])->name('psoul.types.destroy');
+    Route::get('/psoul/skills', [\App\Http\Controllers\SkillController::class, 'adminIndex'])->name('psoul.skills');
+    Route::post('/psoul/skills', [\App\Http\Controllers\SkillController::class, 'store'])->name('psoul.skills.store');
     // Outras rotas do admin...
 });
 

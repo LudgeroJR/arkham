@@ -9,6 +9,13 @@ class Skill extends Model
 {
     use HasFactory;
     protected $table = 'skills';
+    protected $fillable = [
+        'name',
+        'category',
+        'type_id',
+        'power',
+        'description',
+    ];
 
     public function type()
     {
@@ -16,7 +23,7 @@ class Skill extends Model
     }
     public function ranges()
     {
-        return $this->hasMany(SkillRange::class, 'skill_id')->with('range');
+        return $this->belongsToMany(Range::class, 'skill_range', 'skill_id', 'range_id');
     }
     
     // Pokémons que aprendem no moveset

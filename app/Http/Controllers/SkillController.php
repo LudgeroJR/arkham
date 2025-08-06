@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\Request;
 use App\Models\Skill;
+use App\Models\Type;
+use App\Models\Range;
 
 class SkillController extends Controller
 {
@@ -10,6 +13,85 @@ class SkillController extends Controller
     {
         $skills = Skill::with('type')->orderBy('name')->get();
         return view('psoul.skills', compact('skills'));
+    }
+
+    public function adminIndex()
+    {
+        // Carrega todas as skills, já com type e ranges (para exibir na tela)
+        $skills = Skill::with(['type', 'ranges'])->orderBy('name')->get()->map(function ($skill) {
+            return [
+                'id' => $skill->id,
+                'name' => $skill->name,
+                'category' => $skill->category,
+                'type_id' => $skill->type_id,
+                'type_name' => $skill->type ? $skill->type->name : '',
+                'power' => $skill->power,
+                'description' => $skill->description,
+                'ranges' => $skill->ranges->map(function ($range) {
+                    return [
+                        'id' => $range->id,
+                        'name' => $range->name
+                    ];
+                })->values(),
+            ];
+        });
+
+        // Carrega todos os types para o select
+        $types = \App\Models\Type::orderBy('name')->get(['id', 'name']);
+
+        // Carrega todos os ranges para o select
+        $ranges = \App\Models\Range::orderBy('name')->get(['id', 'name']);
+
+        // Retorna a view do admin
+        return view('admin.psoul.skills', compact('skills', 'types', 'ranges'));
+    }
+
+    public function store(Request $request)
+    {
+        $data = $request->validate([
+            'name' => 'required|string|max:255|unique:skills,name',
+            'category' => 'required|in:Physical,Special,Status',
+            'type_id' => 'required|exists:types,id',
+            'power' => 'required|integer|min:0',
+            'description' => 'required|string',
+            'ranges' => 'array',
+            'ranges.*' => 'exists:ranges,id'
+        ]);
+
+        // Cria a skill
+        $skill = Skill::create([
+            'name' => $data['name'],
+            'category' => $data['category'],
+            'type_id' => $data['type_id'],
+            'power' => $data['power'],
+            'description' => $data['description'],
+        ]);
+
+        // Associa os ranges (tabela skill_range)
+        if (!empty($data['ranges'])) {
+            $skill->ranges()->sync($data['ranges']);
+        }
+
+        // Retorna a skill criada (formato igual index)
+        $skill = Skill::with(['type', 'ranges'])->find($skill->id);
+        return response()->json([
+            'success' => true,
+            'skill' => [
+                'id' => $skill->id,
+                'name' => $skill->name,
+                'category' => $skill->category,
+                'type_id' => $skill->type_id,
+                'type_name' => $skill->type ? $skill->type->name : '',
+                'power' => $skill->power,
+                'description' => $skill->description,
+                'ranges' => $skill->ranges->map(function ($range) {
+                    return [
+                        'id' => $range->id,
+                        'name' => $range->name
+                    ];
+                })->values(),
+            ]
+        ]);
     }
 
     public function showJson($id)
