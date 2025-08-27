@@ -98,7 +98,7 @@ class SkillController extends Controller
     {
         $skill = Skill::with([
             'type',
-            'ranges.range',
+            'ranges',
             'movesetPokemons',
             'eggmovePokemons',
             'movetutorPokemons'
@@ -111,7 +111,8 @@ class SkillController extends Controller
             'type' => $skill->type ? $skill->type->name : null,
             'power' => $skill->power,
             'description' => $skill->description,
-            'ranges' => $skill->ranges->map(fn($r) => $r->range ? $r->range->name : null)->filter()->values(),
+            // Corrigido: acessa diretamente $r->name
+            'ranges' => $skill->ranges->map(fn($r) => $r->name)->filter()->values(),
             'moveset_pokemons' => $skill->movesetPokemons->map(fn($p) => ['id'=>$p->id,'name'=>$p->name, 'thumb'=>$p->thumb])->values(),
             'eggmove_pokemons' => $skill->eggmovePokemons->map(fn($p) => ['id'=>$p->id,'name'=>$p->name, 'thumb'=>$p->thumb])->values(),
             'movetutor_pokemons' => $skill->movetutorPokemons->map(fn($p) => ['id'=>$p->id,'name'=>$p->name, 'thumb'=>$p->thumb])->values(),
