@@ -55,8 +55,15 @@
                                 </span>
                             </template>
                         </td>
-                        <td class="py-3 px-4 text-center">
-                            <!-- Aqui você pode adicionar botões de editar/excluir futuramente -->
+                        <td class="py-3 px-4 flex justify-center gap-2">
+                            <button class="p-1 rounded hover:bg-green-400 hover:text-black transition"
+                                @click="editSkill(skill)" title="Editar">
+                                <span class="material-icons">edit</span>
+                            </button>
+                            <button class="p-1 rounded hover:bg-red-500 hover:text-white transition"
+                                @click="deleteSkill(skill)" title="Excluir">
+                                <span class="material-icons">delete</span>
+                            </button>
                         </td>
                     </tr>
                 </template>
@@ -113,7 +120,8 @@
                         <label class="font-bold text-green-100">Ranges</label>
                         <div class="flex flex-wrap gap-2 mb-2">
                             <template x-for="(range, idx) in form.ranges" :key="range.id">
-                                <span class="bg-green-700 text-green-100 rounded px-2 py-1 text-xs flex items-center gap-1">
+                                <span
+                                    class="bg-green-700 text-green-100 rounded px-2 py-1 text-xs flex items-center gap-1">
                                     <span x-text="range.name"></span>
                                     <button type="button" class="ml-1 text-xs hover:text-red-400"
                                         @click="removeRange(idx)">&times;</button>
@@ -140,6 +148,82 @@
                 </form>
             </div>
         </div>
+
+        <!-- Modal de Edição -->
+        <div x-show="showEditModal" style="display: none;"
+            class="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
+            <div class="bg-gray-900 p-8 rounded-lg w-[500px] relative border border-green-600">
+                <button class="absolute top-2 right-3 text-green-400 hover:text-green-200 text-xl"
+                    @click="showEditModal = false">&times;</button>
+                <h3 class="text-2xl font-bold text-green-400 mb-4">Editar Skill</h3>
+                <form @submit.prevent="updateSkill">
+                    <div class="mb-3">
+                        <label class="font-bold text-green-100">Nome</label>
+                        <input type="text" x-model="editingSkill.name" required
+                            class="w-full rounded border border-green-400 px-3 py-2 bg-gray-900 text-green-200" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="font-bold text-green-100">Categoria</label>
+                        <select x-model="editingSkill.category" required
+                            class="w-full rounded border border-green-400 px-3 py-2 bg-gray-900 text-green-200">
+                            <option value="">Selecione...</option>
+                            <option value="Physical">Physical</option>
+                            <option value="Special">Special</option>
+                            <option value="Status">Status</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="font-bold text-green-100">Tipo</label>
+                        <select x-model="editingSkill.type_id" required
+                            class="w-full rounded border border-green-400 px-3 py-2 bg-gray-900 text-green-200">
+                            <option value="">Selecione...</option>
+                            <template x-for="type in types" :key="type.id">
+                                <option :value="type.id" x-text="type.name"></option>
+                            </template>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="font-bold text-green-100">Poder</label>
+                        <input type="number" x-model="editingSkill.power" required min="0"
+                            class="w-full rounded border border-green-400 px-3 py-2 bg-gray-900 text-green-200" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="font-bold text-green-100">Descrição</label>
+                        <textarea x-model="editingSkill.description" required
+                            class="w-full rounded border border-green-400 px-3 py-2 bg-gray-900 text-green-200"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="font-bold text-green-100">Ranges</label>
+                        <div class="flex flex-wrap gap-2 mb-2">
+                            <template x-for="(range, idx) in editingSkill.ranges" :key="range.id">
+                                <span
+                                    class="bg-green-700 text-green-100 rounded px-2 py-1 text-xs flex items-center gap-1">
+                                    <span x-text="range.name"></span>
+                                    <button type="button" class="ml-1 text-xs hover:text-red-400"
+                                        @click="removeEditRange(idx)">&times;</button>
+                                </span>
+                            </template>
+                        </div>
+                        <div class="flex gap-2">
+                            <select x-model="selectedEditRangeId"
+                                class="rounded border border-green-400 px-2 py-1 bg-gray-900 text-green-200">
+                                <option value="">Adicionar Range...</option>
+                                <template x-for="range in ranges" :key="range.id">
+                                    <option :value="range.id" x-text="range.name"></option>
+                                </template>
+                            </select>
+                            <button type="button" class="bg-green-400 hover:bg-green-600 text-black px-3 rounded"
+                                @click="addEditRange()" :disabled="!selectedEditRangeId">Adicionar</button>
+                        </div>
+                    </div>
+                    <button type="submit"
+                        class="bg-green-400 hover:bg-green-600 text-black font-bold rounded px-6 py-2 mt-4 w-full">Salvar
+                        Alterações</button>
+                    <div x-show="editErrorMsg" class="text-red-400 text-sm mt-2" x-text="editErrorMsg"></div>
+                    <div x-show="editSuccessMsg" class="text-green-400 text-sm mt-2" x-text="editSuccessMsg"></div>
+                </form>
+            </div>
+        </div>
     </div>
 
     <!-- Alpine.js CDN -->
@@ -163,6 +247,11 @@
                 selectedRangeId: '',
                 errorMsg: '',
                 successMsg: '',
+                showEditModal: false,
+                editingSkill: null,
+                selectedEditRangeId: '',
+                editErrorMsg: '',
+                editSuccessMsg: '',
                 openModal() {
                     this.form = {
                         name: '',
@@ -231,7 +320,77 @@
                     }).catch(e => {
                         this.errorMsg = e.message || 'Erro ao cadastrar Skill.';
                     });
-                }
+                },
+                editSkill(skill) {
+                    // Preenche o modal de edição com os dados da skill selecionada
+                    this.editingSkill = JSON.parse(JSON.stringify(skill));
+                    this.selectedEditRangeId = '';
+                    this.editErrorMsg = '';
+                    this.editSuccessMsg = '';
+                    this.showEditModal = true;
+                },
+                addEditRange() {
+                    if (this.selectedEditRangeId && !this.editingSkill.ranges.find(r => r.id == this.selectedEditRangeId)) {
+                        const rangeObj = this.ranges.find(r => r.id == this.selectedEditRangeId);
+                        if (rangeObj)
+                            this.editingSkill.ranges.push({
+                                id: rangeObj.id,
+                                name: rangeObj.name
+                            });
+                    }
+                    this.selectedEditRangeId = '';
+                },
+                removeEditRange(idx) {
+                    this.editingSkill.ranges.splice(idx, 1);
+                },
+                updateSkill() {
+                    this.editErrorMsg = '';
+                    this.editSuccessMsg = '';
+                    fetch(`/admin/psoul/skills/${this.editingSkill.id}`, {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            },
+                            body: JSON.stringify({
+                                name: this.editingSkill.name,
+                                category: this.editingSkill.category,
+                                type_id: this.editingSkill.type_id,
+                                power: this.editingSkill.power,
+                                description: this.editingSkill.description,
+                                ranges: this.editingSkill.ranges.map(r => r.id),
+                            }),
+                        })
+                        .then(async r => {
+                            let data = await r.json();
+                            if (!r.ok || !data.success) throw new Error(data.message || 'Erro ao atualizar');
+                            // Atualiza a skill na lista
+                            const i = this.skills.findIndex(s => s.id === data.skill.id);
+                            if (i !== -1) this.skills[i] = data.skill;
+                            this.editSuccessMsg = 'Skill atualizada com sucesso!';
+                            this.showEditModal = false;
+                        })
+                        .catch(e => {
+                            this.editErrorMsg = e.message || 'Erro ao atualizar Skill.';
+                        });
+                },
+                deleteSkill(skill) {
+                    if (!confirm(`Tem certeza que deseja remover a skill "${skill.name}"?`)) return;
+
+                    fetch(`/admin/psoul/skills/${skill.id}`, {
+                            method: 'DELETE',
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            },
+                        })
+                        .then(r => r.json())
+                        .then(data => {
+                            if (data.success) {
+                                // Remove da lista
+                                this.skills = this.skills.filter(s => s.id !== skill.id);
+                            }
+                        });
+                },
             }
         }
     </script>

@@ -55,6 +55,9 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::delete('/psoul/types/{type}', [\App\Http\Controllers\TypeController::class, 'destroy'])->name('psoul.types.destroy');
     Route::get('/psoul/skills', [\App\Http\Controllers\SkillController::class, 'adminIndex'])->name('psoul.skills');
     Route::post('/psoul/skills', [\App\Http\Controllers\SkillController::class, 'store'])->name('psoul.skills.store');
+    Route::get('/psoul/skills/ajax/{skill}', [\App\Http\Controllers\SkillController::class, 'showAjax'])->name('psoul.skills.ajax.show');
+    Route::put('/psoul/skills/{skill}', [\App\Http\Controllers\SkillController::class, 'update'])->name('psoul.skills.update');
+    Route::delete('/psoul/skills/{skill}', [\App\Http\Controllers\SkillController::class, 'destroy'])->name('psoul.skills.destroy');
     // Outras rotas do admin...
 });
 

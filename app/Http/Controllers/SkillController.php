@@ -117,4 +117,64 @@ class SkillController extends Controller
             'movetutor_pokemons' => $skill->movetutorPokemons->map(fn($p) => ['id'=>$p->id,'name'=>$p->name, 'thumb'=>$p->thumb])->values(),
         ]);
     }
+
+    public function update(\Illuminate\Http\Request $request, $id)
+    {
+        $data = $request->validate([
+            'name' => "required|string|max:255|unique:skills,name,{$id}",
+            'category' => 'required|in:Physical,Special,Status',
+            'type_id' => 'required|exists:types,id',
+            'power' => 'required|integer|min:0',
+            'description' => 'required|string',
+            'ranges' => 'array',
+            'ranges.*' => 'exists:ranges,id'
+        ]);
+
+        $skill = \App\Models\Skill::findOrFail($id);
+
+        // Atualiza dados
+        $skill->update([
+            'name' => $data['name'],
+            'category' => $data['category'],
+            'type_id' => $data['type_id'],
+            'power' => $data['power'],
+            'description' => $data['description'],
+        ]);
+
+        // Sincroniza ranges
+        $skill->ranges()->sync($data['ranges'] ?? []);
+
+        // Retorna a Skill atualizada
+        $skill = \App\Models\Skill::with(['type', 'ranges'])->find($skill->id);
+        return response()->json([
+            'success' => true,
+            'skill' => [
+                'id' => $skill->id,
+                'name' => $skill->name,
+                'category' => $skill->category,
+                'type_id' => $skill->type_id,
+                'type_name' => $skill->type ? $skill->type->name : '',
+                'power' => $skill->power,
+                'description' => $skill->description,
+                'ranges' => $skill->ranges->map(function ($range) {
+                    return [
+                        'id' => $range->id,
+                        'name' => $range->name
+                    ];
+                })->values(),
+            ]
+        ]);
+    }
+    public function destroy($id)
+    {
+        $skill = \App\Models\Skill::findOrFail($id);
+
+        // Remove os ranges relacionados (pivot)
+        $skill->ranges()->detach();
+
+        // Remove a Skill
+        $skill->delete();
+
+        return response()->json(['success' => true]);
+    }
 }
