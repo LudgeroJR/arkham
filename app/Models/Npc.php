@@ -9,6 +9,7 @@ class NPC extends Model
 {
     use HasFactory;
     protected $table = 'npcs';
+    protected $fillable = ['name', 'localization'];
 
     public function sells()
     {

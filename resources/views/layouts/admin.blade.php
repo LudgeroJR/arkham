@@ -42,7 +42,7 @@
                             class="px-3 py-1 rounded text-green-100 hover:bg-green-400 hover:text-black transition">Skills</a>
                         <a href="{{ route('admin.psoul.types') }}"
                             class="px-3 py-1 rounded text-green-100 hover:bg-green-400 hover:text-black transition">Types</a>
-                        <a href="#"
+                        <a href="{{ route('admin.psoul.npcs') }}"
                             class="px-3 py-1 rounded text-green-100 hover:bg-green-400 hover:text-black transition">NPCs</a>
                     </div>
                 </div>

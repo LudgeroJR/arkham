@@ -19,6 +19,8 @@ Route::prefix('psoul')->name('psoul.')->group(function () {
     Route::get('/quests', [\App\Http\Controllers\QuestController::class, 'index'])->name('quests');
 });
 
+
+
 // Rotas do painel admin (protegidas por auth)
 Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', fn() => view('admin.dashboard'))->name('dashboard');
@@ -58,6 +60,10 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::get('/psoul/skills/ajax/{skill}', [\App\Http\Controllers\SkillController::class, 'showAjax'])->name('psoul.skills.ajax.show');
     Route::put('/psoul/skills/{skill}', [\App\Http\Controllers\SkillController::class, 'update'])->name('psoul.skills.update');
     Route::delete('/psoul/skills/{skill}', [\App\Http\Controllers\SkillController::class, 'destroy'])->name('psoul.skills.destroy');
+    Route::get('/psoul/npcs', [\App\Http\Controllers\NpcController::class, 'adminIndex'])->name('psoul.npcs');
+    Route::post('/psoul/npcs', [\App\Http\Controllers\NpcController::class, 'store'])->name('psoul.npcs.store');
+    Route::put('/psoul/npcs/{npc}', [\App\Http\Controllers\NpcController::class, 'update'])->name('psoul.npcs.update');
+    Route::delete('/psoul/npcs/{npc}', [\App\Http\Controllers\NpcController::class, 'destroy'])->name('psoul.npcs.destroy');
     // Outras rotas do admin...
 });
 
