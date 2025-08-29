@@ -2,84 +2,68 @@
 @section('content')
     @include('partials.psoul-menu')
 
-    <div 
-        x-data="{
-            showModal: false,
-            modalItem: null,
-            search: '',
-            openModal(item) {
-                this.showModal = false;
-                this.modalItem = null;
-                fetch(`/psoul/itens/${item.id}/json`)
-                    .then(res => {
-                        if (!res.ok) throw new Error('Erro ao buscar dados');
-                        return res.json();
-                    })
-                    .then(data => {
-                        this.modalItem = data;
-                        this.showModal = true;
-                    })
-                    .catch(e => {
-                        console.error(e);
-                        alert('Erro ao carregar os dados do item.');
-                    });
-            },
-            closeModal() {
-                this.showModal = false;
-                this.modalItem = null;
-            }
-        }"
-        @keydown.escape.window="closeModal()"
-        class="bg-white/90 rounded-2xl shadow-2xl p-6 max-w-5xl mx-auto w-full min-h-[360px] flex flex-col items-center"
-    >
+    <div x-data="{
+        showModal: false,
+        modalItem: null,
+        search: '',
+        openModal(item) {
+            this.showModal = false;
+            this.modalItem = null;
+            fetch(`/psoul/itens/${item.id}/json`)
+                .then(res => {
+                    if (!res.ok) throw new Error('Erro ao buscar dados');
+                    return res.json();
+                })
+                .then(data => {
+                    this.modalItem = data;
+                    this.showModal = true;
+                })
+                .catch(e => {
+                    console.error(e);
+                    alert('Erro ao carregar os dados do item.');
+                });
+        },
+        closeModal() {
+            this.showModal = false;
+            this.modalItem = null;
+        }
+    }" @keydown.escape.window="closeModal()"
+        class="bg-white/90 rounded-2xl shadow-2xl p-6 max-w-5xl mx-auto w-full min-h-[360px] flex flex-col items-center">
         <h2 class="text-3xl font-bold text-[#B81F1C] mb-6 tracking-wide drop-shadow">Itens</h2>
 
         <!-- Campo de pesquisa -->
-        <input 
-            type="text"
-            x-model="search"
-            placeholder="Pesquisar por nome..."
-            class="mb-4 px-4 py-2 rounded border border-[#EDC416] focus:outline-none focus:ring-2 focus:ring-[#EDC416] w-full max-w-md"
-        >
+        <input type="text" x-model="search" placeholder="Pesquisar por nome..."
+            class="mb-4 px-4 py-2 rounded border border-[#EDC416] focus:outline-none focus:ring-2 focus:ring-[#EDC416] w-full max-w-md">
 
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 w-full overflow-y-auto">
-            @foreach($items as $itemLoop)
-                <div 
-                    class="cursor-pointer bg-yellow-100 rounded p-2 text-center font-bold hover:bg-yellow-200 transition"
+            @foreach ($items as $itemLoop)
+                <div class="cursor-pointer bg-yellow-100 rounded p-2 text-center font-bold hover:bg-yellow-200 transition"
                     x-show="!search || '{{ mb_strtolower($itemLoop->name) }}'.includes(search.toLowerCase())"
-                    @click="openModal({ id: {{ $itemLoop->id }}, name: @js($itemLoop->name) })"
-                >
+                    @click="openModal({ id: {{ $itemLoop->id }}, name: @js($itemLoop->name) })">
                     {{ $itemLoop->name }}
                 </div>
             @endforeach
         </div>
         <!-- Modal Separado -->
-        <div 
-            x-show="showModal && modalItem"
-            x-transition.opacity
-            class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80 backdrop-blur-sm"
-        >
-            <div 
-                @click.away="closeModal()" 
-                class="bg-gradient-to-br from-[#F8EE9A] via-[#EDC416] to-[#EA7514] rounded-2xl shadow-2xl p-8 max-w-3xl w-full mx-4 relative overflow-y-auto max-h-[90vh] border-4 border-[#B81F1C] flex flex-col gap-4"
-            >
-                <button 
-                    @click="closeModal()" 
+        <div x-show="showModal && modalItem" x-transition.opacity
+            class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80 backdrop-blur-sm">
+            <div @click.away="closeModal()"
+                class="bg-gradient-to-br from-[#F8EE9A] via-[#EDC416] to-[#EA7514] rounded-2xl shadow-2xl p-8 max-w-3xl w-full mx-4 relative overflow-y-auto max-h-[90vh] border-4 border-[#B81F1C] flex flex-col gap-4">
+                <button @click="closeModal()"
                     class="absolute top-4 right-4 text-3xl text-[#B81F1C] hover:text-[#C6241D] font-extrabold transition"
-                    style="text-shadow: 1px 1px 0 #fff, 2px 2px 0 #EDC416;"
-                >&times;</button>
+                    style="text-shadow: 1px 1px 0 #fff, 2px 2px 0 #EDC416;">&times;</button>
                 <div class="flex flex-col items-center mb-4">
-                    <div class="w-24 h-24 rounded-full bg-[#fff8] flex items-center justify-center shadow-lg border-4 border-[#B81F1C] mb-2">
+                    <div
+                        class="w-24 h-24 rounded-full bg-[#fff8] flex items-center justify-center shadow-lg border-4 border-[#B81F1C] mb-2">
                         <svg class="w-14 h-14 text-[#B81F1C]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <circle cx="12" cy="12" r="10" stroke="#B81F1C" stroke-width="2" fill="#F8EE9A"/>
-                            <text x="50%" y="55%" text-anchor="middle" fill="#B81F1C" font-size="18" font-family="Bebas Neue, Oswald, Arial" dy=".3em">IT</text>
+                            <circle cx="12" cy="12" r="10" stroke="#B81F1C" stroke-width="2" fill="#F8EE9A" />
+                            <text x="50%" y="55%" text-anchor="middle" fill="#B81F1C" font-size="18"
+                                font-family="Bebas Neue, Oswald, Arial" dy=".3em">IT</text>
                         </svg>
                     </div>
-                    <h3 
-                        class="text-3xl font-extrabold mb-2 text-center text-[#B81F1C] drop-shadow-lg tracking-wide"
+                    <h3 class="text-3xl font-extrabold mb-2 text-center text-[#B81F1C] drop-shadow-lg tracking-wide"
                         style="font-family: 'Bebas Neue', Oswald, Arial, sans-serif; letter-spacing: 2px;"
-                        x-text="modalItem.name"
-                    ></h3>
+                        x-text="modalItem.name"></h3>
                 </div>
 
                 <div class="flex flex-col gap-3">
@@ -119,8 +103,12 @@
                             </div>
                             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-2 overflow-y-auto">
                                 <template x-for="poke in modalItem.dropped_by" :key="poke.id">
-                                    <div class="bg-[#F8EE9A] rounded px-2 py-1 text-[#B81F1C] font-bold text-center border border-[#EDC416] shadow-sm flex items-center gap-2 justify-center">
-                                        <img :src="'{{ asset('images/jogos/psoul/pokemonsthumb') }}/' + poke.thumb" :alt="poke.name" class="w-6 h-6 object-contain rounded-full border border-[#B81F1C] bg-white" loading="lazy">
+                                    <div
+                                        class="bg-[#F8EE9A] rounded px-2 py-1 text-[#B81F1C] font-bold text-center border border-[#EDC416] shadow-sm flex items-center gap-2 justify-center">
+                                        <img :src="'{{ asset('images/jogos/psoul/pokemonsthumb') }}/' + poke.thumb"
+                                            :alt="poke.name"
+                                            class="w-6 h-6 object-contain rounded-full border border-[#B81F1C] bg-white"
+                                            loading="lazy">
                                         <span x-text="poke.name"></span>
                                     </div>
                                 </template>
@@ -136,7 +124,7 @@
                             </div>
                             <ul class="list-disc list-inside text-[#680F0F] font-medium ml-4">
                                 <template x-for="npc in modalItem.sold_by" :key="npc.id">
-                                    <li x-text="npc.name"></li>
+                                    <li x-text="npc.name + ' (' + npc.localization + ')'"></li>
                                 </template>
                             </ul>
                         </div>
@@ -150,7 +138,7 @@
                             </div>
                             <ul class="list-disc list-inside text-[#680F0F] font-medium ml-4">
                                 <template x-for="npc in modalItem.bought_by" :key="npc.id">
-                                    <li x-text="npc.name"></li>
+                                    <li x-text="npc.name + ' (' + npc.localization + ')'"></li>
                                 </template>
                             </ul>
                         </div>
@@ -166,7 +154,8 @@
                                 <template x-for="quest in modalItem.quest_rewards" :key="quest.id">
                                     <li>
                                         <template x-if="quest.link">
-                                            <a :href="quest.link" class="text-blue-700 underline" target="_blank" x-text="quest.name"></a>
+                                            <a :href="quest.link" class="text-blue-700 underline" target="_blank"
+                                                x-text="quest.name"></a>
                                         </template>
                                         <template x-if="!quest.link">
                                             <span x-text="quest.name"></span>

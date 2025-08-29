@@ -10,7 +10,7 @@ class NpcController extends Controller
     // Página de administração de NPCs
     public function adminIndex()
     {
-        $npcs = \App\Models\Npc::all();
+        $npcs = \App\Models\Npc::with(['sells', 'buys'])->get();
         $items = \App\Models\Item::all();
         return view('admin.psoul.npcs', compact('npcs', 'items'));
     }
@@ -50,5 +50,18 @@ class NpcController extends Controller
         $npc->buys()->sync($data['buys'] ?? []);
 
         return response()->json(['success' => true, 'message' => 'NPC salvo com sucesso!']);
+    }
+
+    public function destroy($id)
+    {
+        $npc = \App\Models\Npc::find($id);
+        if (!$npc) {
+            return response()->json(['success' => false, 'message' => 'NPC não encontrado.'], 404);
+        }
+        // Remove relações de itens vendidos e comprados
+        $npc->sells()->detach();
+        $npc->buys()->detach();
+        $npc->delete();
+        return response()->json(['success' => true, 'message' => 'NPC excluído com sucesso!']);
     }
 }

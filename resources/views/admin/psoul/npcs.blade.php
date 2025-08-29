@@ -18,6 +18,8 @@
                     <tr>
                         <th class="py-3 px-4 text-left">Nome</th>
                         <th class="py-3 px-4 text-left">Localização</th>
+                        <th class="py-3 px-4 text-center">Vende</th>
+                        <th class="py-3 px-4 text-center">Compra</th>
                         <th class="py-3 px-4 text-center w-32">Ações</th>
                     </tr>
                 </thead>
@@ -26,20 +28,28 @@
                         <tr class="border-t border-green-700 hover:bg-green-950/50 transition">
                             <td class="py-3 px-4" x-text="npc.name"></td>
                             <td class="py-3 px-4" x-text="npc.localization"></td>
+                            <td class="py-3 px-4 text-center group">
+                                <span x-text="npc.sells?.length || 0 + ' itens'" class="underline cursor-pointer"
+                                    :title="npc.sells?.map(i => i.name).join(', ') || 'Nenhum'"></span>
+                            </td>
+                            <td class="py-3 px-4 text-center group">
+                                <span x-text="npc.buys?.length || 0 + ' itens'" class="underline cursor-pointer"
+                                    :title="npc.buys?.map(i => i.name).join(', ') || 'Nenhum'"></span>
+                            </td>
                             <td class="py-3 px-4 flex justify-center gap-2">
-                                <button class="p-1 rounded hover:bg-green-400 hover:text-black transition"
+                                <button class="p-1 rounded hover:bg-green-400 hover:text-green-900 transition"
                                     @click="editNpc(npc.id)" title="Editar">
-                                    <span class="material-icons">edit</span>
+                                    <span class="material-icons text-green-200">edit</span>
                                 </button>
                                 <button class="p-1 rounded hover:bg-red-500 hover:text-white transition"
                                     @click="deleteNpc(npc.id)" title="Excluir">
-                                    <span class="material-icons">delete</span>
+                                    <span class="material-icons text-green-200">delete</span>
                                 </button>
                             </td>
                         </tr>
                     </template>
                     <tr x-show="filteredNpcs().length === 0">
-                        <td colspan="3" class="py-6 text-center text-green-400">Nenhum NPC encontrado.</td>
+                        <td colspan="5" class="py-6 text-center text-green-400">Nenhum NPC encontrado.</td>
                     </tr>
                 </tbody>
             </table>
@@ -178,7 +188,9 @@
                     this.form = {
                         id: null,
                         name: '',
-                        localization: ''
+                        localization: '',
+                        sells: [],
+                        buys: []
                     };
                 },
                 submitNpc() {
@@ -228,6 +240,7 @@
                         .catch(() => {
                             this.errorMsg = 'Erro na comunicação com o servidor.';
                         });
+                    window.location.reload();
                 },
                 editNpc(id) {
                     let npc = this.npcs.find(n => n.id === id);
@@ -238,14 +251,48 @@
                     this.form.id = npc.id;
                     this.form.name = npc.name;
                     this.form.localization = npc.localization;
+                    this.form.sells = Array.isArray(npc.sells) ? npc.sells.map(i => i.id) : [];
+                    this.form.buys = Array.isArray(npc.buys) ? npc.buys.map(i => i.id) : [];
                     this.showModal = true;
                     this.errorMsg = '';
                     this.successMsg = '';
+                    // Atualiza TomSelect após abrir modal
+                    this.$nextTick(() => {
+                        if (window.TomSelect) {
+                            let sellsSelect = document.querySelector('select[x-model="form.sells"]');
+                            let buysSelect = document.querySelector('select[x-model="form.buys"]');
+                            if (sellsSelect && sellsSelect.tomselect) {
+                                sellsSelect.tomselect.setValue(this.form.sells);
+                            }
+                            if (buysSelect && buysSelect.tomselect) {
+                                buysSelect.tomselect.setValue(this.form.buys);
+                            }
+                        }
+                    });
                 },
                 deleteNpc(id) {
                     if (!confirm('Tem certeza que deseja excluir este NPC?')) return;
-                    alert('Remoção de NPC será implementada na próxima etapa.');
-                },
+                    fetch(`/admin/psoul/npcs/${id}`, {
+                            method: "DELETE",
+                            headers: {
+                                "Content-Type": "application/json",
+                                "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                            }
+                        })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.success) {
+                                // Remove da lista local sem recarregar a página
+                                this.npcs = this.npcs.filter(n => n.id !== id);
+                                this.successMsg = data.message;
+                            } else {
+                                this.errorMsg = data.message || 'Erro ao excluir NPC.';
+                            }
+                        })
+                        .catch(() => {
+                            this.errorMsg = 'Erro na comunicação com o servidor.';
+                        });
+                }
             }
         }
     </script>
