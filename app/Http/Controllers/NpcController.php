@@ -3,14 +3,14 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Npc;
+use App\Models\NPC;
 
 class NpcController extends Controller
 {
     // Página de administração de NPCs
     public function adminIndex()
     {
-        $npcs = \App\Models\Npc::with(['sells', 'buys'])->get();
+        $npcs = \App\Models\NPC::with(['sells', 'buys'])->get();
         $items = \App\Models\Item::all();
         return view('admin.psoul.npcs', compact('npcs', 'items'));
     }
@@ -29,7 +29,7 @@ class NpcController extends Controller
 
         // Cadastro ou edição
         if (!empty($data['id'])) {
-            $npc = \App\Models\Npc::find($data['id']);
+            $npc = \App\Models\NPC::find($data['id']);
             if (!$npc) {
                 return response()->json(['success' => false, 'message' => 'NPC não encontrado.'], 404);
             }
@@ -38,7 +38,7 @@ class NpcController extends Controller
                 'localization' => $data['localization'],
             ]);
         } else {
-            $npc = \App\Models\Npc::create([
+            $npc = \App\Models\NPC::create([
                 'name' => $data['name'],
                 'localization' => $data['localization'],
             ]);
@@ -54,7 +54,7 @@ class NpcController extends Controller
 
     public function destroy($id)
     {
-        $npc = \App\Models\Npc::find($id);
+        $npc = \App\Models\NPC::find($id);
         if (!$npc) {
             return response()->json(['success' => false, 'message' => 'NPC não encontrado.'], 404);
         }
