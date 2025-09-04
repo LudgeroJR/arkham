@@ -373,10 +373,20 @@
                 },
                 addMove() {
                     const nextPos = this.form.moveset.length + 1;
+                    let nextLevel = 1;
+                    if (this.form.moveset.length > 0) {
+                        // Último level + 5
+                        const lastLevel = parseInt(this.form.moveset[this.form.moveset.length - 1].level) || 1;
+                        if (lastLevel === 1) {
+                            nextLevel = lastLevel + 4;
+                        } else {
+                            nextLevel = lastLevel + 5;
+                        }
+                    }
                     this.form.moveset.push({
                         position: nextPos,
                         skill_id: '',
-                        level: ''
+                        level: nextLevel
                     });
                 },
                 removeMove(idx) {
@@ -403,7 +413,7 @@
                 addLoot() {
                     this.form.loot.push({
                         item_id: '',
-                        min: '',
+                        min: '1',
                         max: ''
                     });
                 },
