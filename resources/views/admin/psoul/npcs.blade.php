@@ -58,7 +58,8 @@
         <div x-show="showModal" x-transition
             class="fixed inset-0 z-50 bg-black/90 flex items-center justify-center overflow-auto">
             <div @click.away="closeModal()"
-                class="bg-black/95 border-4 border-green-400 rounded-2xl shadow-2xl p-10 w-full max-w-7xl mx-4 relative flex flex-col gap-4 overflow-auto">
+                class="bg-black/95 border-4 border-green-400 rounded-2xl shadow-2xl p-10 w-full max-w-7xl max-h-xl mx-4 relative flex flex-col gap-4 overflow-auto"
+                style="max-height: 90vh;">
                 <button @click="closeModal()"
                     class="absolute top-4 right-4 text-3xl text-green-400 hover:text-green-600 font-extrabold">&times;</button>
                 <h3 class="text-2xl font-bold text-green-400 mb-2" x-text="form.id ? 'Editar NPC' : 'Adicionar NPC'"></h3>
@@ -80,13 +81,15 @@
                     <div class="flex flex-col gap-4">
                         <div>
                             <label class="font-bold text-green-100">Itens que vende</label>
-                            <select x-model="form.sells" multiple
-                                class="w-full rounded border border-green-400 px-3 py-2 bg-gray-900 text-green-200 tom-autocomplete"
-                                style="max-height: 38em; overflow-y: auto;" x-init="$nextTick(() => new TomSelect($el, { maxOptions: 100, create: false }))">
-                                <template x-for="item in items" :key="item.id">
-                                    <option :value="item.id" x-text="item.name"></option>
-                                </template>
-                            </select>
+                            <div class="w-full" style="max-height: 31rem; overflow-y: auto;">
+                                <select x-model="form.sells" multiple
+                                    class="w-full rounded border border-green-400 px-3 py-2 bg-gray-900 text-green-200 tom-autocomplete"
+                                    x-init="$nextTick(() => new TomSelect($el, { maxOptions: 100, create: false }))">
+                                    <template x-for="item in items" :key="item.id">
+                                        <option :value="item.id" x-text="item.name"></option>
+                                    </template>
+                                </select>
+                            </div>
                             <div class="mt-2 flex flex-wrap gap-2">
                                 {{-- <template x-for="itemId in form.sells" :key="itemId">
                                     <span class="bg-green-900/50 text-green-300 px-2 py-1 rounded text-sm">
@@ -103,19 +106,17 @@
                     <div class="flex flex-col gap-4">
                         <div>
                             <label class="font-bold text-green-100">Itens que compra</label>
-                            <select x-model="form.buys" multiple
-                                class="w-full rounded border border-green-400 px-3 py-2 bg-gray-900 text-green-200 tom-autocomplete"
-                                style="max-height: 38em; overflow-y: auto;" x-init="$nextTick(() => new TomSelect($el, { maxOptions: 100, create: false }))">
-                                <template x-for="item in items" :key="item.id">
-                                    <option :value="item.id" x-text="item.name"></option>
-                                </template>
-                            </select>
+                            <div class="w-full" style="max-height: 31rem; overflow-y: auto;">
+                                <select x-model="form.buys" multiple
+                                    class="w-full rounded border border-green-400 px-3 py-2 bg-gray-900 text-green-200 tom-autocomplete"
+                                    x-init="$nextTick(() => new TomSelect($el, { maxOptions: 100, create: false }))">
+                                    <template x-for="item in items" :key="item.id">
+                                        <option :value="item.id" x-text="item.name"></option>
+                                    </template>
+                                </select>
+                            </div>
                             <div class="mt-2 flex flex-wrap gap-2">
-                                {{-- <template x-for="itemId in form.buys" :key="itemId">
-                                    <span class="bg-green-900/50 text-green-300 px-2 py-1 rounded text-sm">
-                                        <span x-text="itemName(itemId)"></span>
-                                    </span>
-                                </template> --}}
+
                                 <div x-show="!form.buys.length" class="text-green-400 text-xs px-1">Nenhum item selecionado.
                                 </div>
                             </div>

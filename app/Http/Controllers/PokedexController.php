@@ -55,7 +55,7 @@ class PokedexController extends Controller
         $moveset = $pokemon->moveset->sortBy('position')->map(function ($move) {
             $ranges = $move->skill
                 ? $move->skill->ranges->map(function($r) {
-                    return ['name' => $r->range ? $r->range->name : null];
+                    return ['name' => $r->name];
                 })
                 : [];
             return [
@@ -72,7 +72,9 @@ class PokedexController extends Controller
         // Eggmoves
         $eggmoves = $pokemon->eggmoves->map(function ($eggm) {
             $ranges = $eggm->skill
-                ? $eggm->skill->ranges->map(fn($r) => ['name' => $r->range ? $r->range->name : null])
+                ? $eggm->skill->ranges->map(function($r) {
+                    return ['name' => $r->name];
+                })
                 : [];
             return [
                 'category' => $eggm->skill->category ?? null,
@@ -85,7 +87,9 @@ class PokedexController extends Controller
 
         $movetutors = $pokemon->movetutors->map(function ($tutor) {
             $ranges = $tutor->skill
-                ? $tutor->skill->ranges->map(fn($r) => ['name' => $r->range ? $r->range->name : null])
+                ? $tutor->skill->ranges->map(function($r) {
+                    return ['name' => $r->name];
+                })
                 : [];
             return [
                 'category' => $tutor->skill->category ?? null,
